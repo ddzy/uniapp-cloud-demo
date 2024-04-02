@@ -3,7 +3,7 @@
 		<view class="goods">
 			<uni-list>
 				<uni-list-item v-for="v in articles" :key="v._id" :title="v.title" :note="v.description" :thumb="v.avatar_url"
-					:right-text="v.author || 'admin'" clickable="true" thumbSize="lg"></uni-list-item>
+					:right-text="v.author || 'admin'" :clickable="true" thumbSize="lg" @click="toDetailPage(v)"></uni-list-item>
 			</uni-list>
 		</view>
 		<view class="btn btn-create">
@@ -25,7 +25,7 @@
 				articles: [],
 			}
 		},
-		mounted() {
+		onShow() {
 			this.fetchList();
 		},
 		methods: {
@@ -60,7 +60,6 @@
 						}
 					})
 				}
-				console.log('this.articles: ', this.articles);
 				uni.hideLoading();
 			},
 			async toOperatePage() {
@@ -68,6 +67,11 @@
 					url: `/pages/operate-article/operate-article`,
 				})
 			},
+			async toDetailPage(row) {
+				uni.navigateTo({
+					url: `/pages/article-detail/article-detail?articleId=${row._id}`,
+				})
+			}
 		}
 	}
 </script>
