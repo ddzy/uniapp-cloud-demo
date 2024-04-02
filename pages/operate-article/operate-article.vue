@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="container">
 		<uni-forms ref="form" :rules="rules" :modelValue="ruleForm" label-position="top" class="form">
 			<uni-forms-item label="标题" name="title">
 				<uni-easyinput v-model="ruleForm.title" placeholder="请输入标题" :maxlength="24" />
@@ -13,12 +13,18 @@
 						return-type="object"></uni-file-picker>
 				</view>
 			</uni-forms-item>
-			<button type="primary" @click="submit">保存</button>
+			<view class="btn btn-submit">
+				<button type="primary" @click="submit">
+					<uni-icons type="checkmarkempty"></uni-icons>
+				</button>
+			</view>
 		</uni-forms>
 	</view>
 </template>
 
 <script lang="ts">
+	import * as utils from '../../utils/index'
+
 	function genDefaultRuleForm() {
 		return {
 			title: '',
@@ -62,7 +68,7 @@
 			},
 		},
 		onLoad(option) {
-			this.articleId = option.article_id || '';
+			this.articleId = option.articleId || '';
 			if (this.articleId) {
 				this.fetchArticle();
 			}
@@ -73,10 +79,7 @@
 				const result = {} as any;
 
 				for (let key in params) {
-					if (key === 'avatar_url') {
-						result[key] = params[key].url;
-					}
-					else if (params[key] && params[key] !== 'all') {
+					if (params[key] && params[key] !== 'all') {
 						result[key] = params[key];
 					}
 				}
@@ -86,31 +89,49 @@
 				const res = await uniCloud.callFunction({
 					name: 'get-article',
 					data: {
-						article_id: this.articleId,
+						_id: this.articleId,
 					},
 				})
-				if (res && res.data) {
-					console.log('res: ', res);
+				if (res && res.result) {
+					utils.mergeObj(this.ruleForm, res.result);
 				}
 			},
 			async submit() {
 				const form : any = this.$refs.form;
 				try {
 					await form.validate();
-					const res = await uniCloud.callFunction({
-						name: 'post-article',
-						data: this._paramsFilter(),
-					})
-
-					if (res && res.result && res.result.code === 0) {
-						uni.showToast({
-							icon: 'success',
-							title: '创建成功',
-						})
-						uni.navigateBack();
-					}
+					this.computedIsEdit ? this.submitForEdit() : this.submitForCreate();
 				} catch (e) {
 					//TODO handle the exception
+				}
+			},
+			async submitForCreate() {
+				const res = await uniCloud.callFunction({
+					name: 'post-article',
+					data: this._paramsFilter(),
+				})
+				if (res && res.result && res.result.code === 0) {
+					uni.showToast({
+						icon: 'success',
+						title: '创建成功',
+					})
+					uni.navigateBack()
+				}
+			},
+			async submitForEdit() {
+				const res = await uniCloud.callFunction({
+					name: 'put-article',
+					data: {
+						_id: this.articleId,
+						params: this._paramsFilter(),
+					},
+				})
+				if (res && res.result && res.result.code === 0) {
+					uni.showToast({
+						icon: 'success',
+						title: '修改成功',
+					})
+					uni.navigateBack()
 				}
 			},
 		},
@@ -121,6 +142,17 @@
 	.form {
 		.form-avatar_url {
 			padding: 10px;
+		}
+	}
+
+	.btn-submit {
+		position: fixed;
+		right: 40px;
+		bottom: 40px;
+
+		:deep(.uni-icons) {
+			color: #fff !important;
+			font-size: 20px;
 		}
 	}
 </style>

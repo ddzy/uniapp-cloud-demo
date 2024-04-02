@@ -1,0 +1,7 @@
+{
+  "name": "put-article",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}

@@ -2,12 +2,13 @@
 	<view class="container">
 		<view class="goods">
 			<uni-list>
-				<uni-list-item v-for="v in articles" :key="v._id" :title="v.title" :note="v.description" :thumb="v.avatar_url"
-					:right-text="v.author || 'admin'" :clickable="true" thumbSize="lg" @click="toDetailPage(v)"></uni-list-item>
+				<uni-list-item v-for="v in articles" :key="v._id" :title="v.title" :note="v.description"
+					:thumb="v.avatar_url.url" :right-text="v.author || 'admin'" :clickable="true" thumbSize="lg"
+					@click="toDetailPage(v)"></uni-list-item>
 			</uni-list>
 		</view>
 		<view class="btn btn-create">
-			<button type="default" class="btn-inner" @click="toOperatePage">
+			<button type="primary" class="btn-inner" @click="toOperatePage">
 				<uni-icons type="plusempty"></uni-icons>
 			</button>
 		</view>
@@ -82,6 +83,10 @@
 			position: fixed;
 			right: 40px;
 			bottom: 40px;
+
+			:deep(.uni-icons) {
+				color: #fff !important;
+			}
 		}
 	}
 </style>

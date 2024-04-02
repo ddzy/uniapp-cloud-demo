@@ -5,6 +5,11 @@
 		</view>
 		<uni-section class="mb-10" type="line" titleFontSize="20px" :title="computedTitle" :sub-title="computedAuthor"
 			padding="0 20px 20px">{{computedContent}}</uni-section>
+		<view class="btn btn-edit">
+			<button class="btn-edit-inner" type="primary" @click="toOperatePage">
+				<uni-icons type="bars"></uni-icons>
+			</button>
+		</view>
 	</view>
 </template>
 
@@ -24,7 +29,7 @@
 				return this.articleInfo.content || ''
 			},
 			computedAvatarUrl() {
-				return this.articleInfo.avatar_url || ''
+				return this.articleInfo.avatar_url.url || ''
 			},
 			computedAuthor() {
 				return this.articleInfo.author || 'admin'
@@ -32,6 +37,8 @@
 		},
 		onLoad(options) {
 			this.articleId = options.articleId || '';
+		},
+		onShow() {
 			if (this.articleId) {
 				this.fetchInfo();
 			}
@@ -49,6 +56,11 @@
 					this.articleInfo = res.result;
 				}
 				uni.hideLoading()
+			},
+			toOperatePage() {
+				uni.navigateTo({
+					url: `/pages/operate-article/operate-article?articleId=${this.articleId}`
+				})
 			},
 		},
 	}
@@ -68,5 +80,15 @@
 
 	:deep(.uni-section-content) {
 		white-space: pre-wrap;
+	}
+
+	.btn-edit {
+		position: fixed;
+		right: 40px;
+		bottom: 40px;
+
+		:deep(.uni-icons) {
+			color: #fff !important;
+		}
 	}
 </style>
