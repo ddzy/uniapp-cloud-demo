@@ -1,5 +1,5 @@
 {
-  "name": "get-article",
+  "name": "get-user",
   "dependencies": {
     "common-cloud-utils": "file:../common/common-cloud-utils"
   },

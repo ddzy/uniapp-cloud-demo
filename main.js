@@ -1,6 +1,22 @@
 import App from './App';
 import store from './store/store';
 
+// callFunction 拦截器
+uniCloud.addInterceptor('callFunction', {
+	invoke(options) {
+		if (!options.data) {
+			options.data = {};
+		}
+		options.data.token = uni.getStorageSync('__token__') || '';
+	},
+	success(res) {
+		if (res.result.code === '401') {
+			// 重新登录
+			store.commit('user/UPDATE_IS_LOGINED', false);
+		}
+	},
+});
+
 // #ifndef VUE3
 import Vue from 'vue';
 import './uni.promisify.adaptor';

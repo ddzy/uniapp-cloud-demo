@@ -55,7 +55,7 @@ export default {
 			return this.$store.state.user.userInfo;
 		},
 		computedIsLogined() {
-			return this.computedUserInfo && this.computedUserInfo._id;
+			return this.$store.state.user.isLogined;
 		},
 	},
 	methods: {
@@ -83,7 +83,10 @@ export default {
 					},
 				});
 				if (res.result.code === 0) {
-					this.$store.commit('user/UPDATE_USER_INFO', res.result.data);
+					this.$store.commit('user/UPDATE_USER_INFO', res.result.data.user);
+					this.$store.commit('user/UPDATE_IS_LOGINED', true);
+					// 登录成功，存储token
+					uni.setStorageSync('__token__', res.result.data.token);
 				}
 
 				uni.hideLoading();

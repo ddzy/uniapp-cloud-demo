@@ -4,19 +4,25 @@ import { IRootModuleState } from '../store';
 
 export interface IUserModuleState {
 	userInfo: IUser;
+	isLogined: boolean;
+}
+
+function genDefaultUserInfo(): IUser {
+	return {
+		_id: '',
+		openid: '',
+		nickname: '',
+		avatar_url: '',
+		gender: 'male',
+		created_time: 0,
+	};
 }
 
 const user: Module<IUserModuleState, IRootModuleState> = {
 	namespaced: true,
 	state: {
-		userInfo: {
-			_id: '',
-			openid: '',
-			nickname: '',
-			avatar_url: '',
-			gender: 'male',
-			created_time: 0,
-		},
+		userInfo: genDefaultUserInfo(),
+		isLogined: false,
 	},
 	mutations: {
 		UPDATE_USER_INFO(state, payload) {
@@ -25,8 +31,25 @@ const user: Module<IUserModuleState, IRootModuleState> = {
 				...payload,
 			};
 		},
+		UPDATE_IS_LOGINED(state, payload) {
+			state.isLogined = !!payload;
+			if (!state.isLogined) {
+				state.userInfo = genDefaultUserInfo();
+			}
+		},
 	},
-	actions: {},
+	actions: {
+		async DISPATCH_USER_INFO(store) {
+			const res = await uniCloud.callFunction({
+				name: 'get-user',
+				data: {},
+			});
+			if (res.result && res.result.code === 0) {
+				store.commit('UPDATE_USER_INFO', res.result.data);
+				store.commit('UPDATE_IS_LOGINED', true);
+			}
+		},
+	},
 };
 
 export default user;
