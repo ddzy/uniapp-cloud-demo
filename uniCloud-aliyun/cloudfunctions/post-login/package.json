@@ -1,0 +1,7 @@
+{
+  "name": "post-login",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}
