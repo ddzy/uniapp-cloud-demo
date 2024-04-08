@@ -1,6 +1,6 @@
 <template>
 	<view class="container">
-		<view class="user-section">
+		<view class="common-section user-section">
 			<view
 				class="user-avatar"
 				:style="{
@@ -8,34 +8,37 @@
 				}"
 			></view>
 			<view v-if="computedIsLogined" class="user-profile">
-				<text class="user-profile-nickname">{{ computedUserInfo.nickname }}</text>
-				<text class="user-profile-brief">{{ computedUserInfo.brief }}</text>
-				<view class="user-profile-gender">
-					<uni-tag :text="computedUserInfo.gender" type="primary" inverted size="mini"></uni-tag>
+				<view class="user-profile-detail">
+					<text class="user-profile-nickname">{{ computedUserInfo.nickname }}</text>
+					<text class="user-profile-brief">{{ computedUserInfo.brief }}</text>
+					<view class="user-profile-gender">
+						<uni-tag :text="computedUserInfo.gender" type="primary" inverted size="mini"></uni-tag>
+					</view>
+				</view>
+
+				<view class="user-profile-editor">
+					<uni-icons type="compose"></uni-icons>
 				</view>
 			</view>
 			<view v-else class="user-login">
 				<text @click="login">立即登录></text>
 			</view>
-			<view class="user-editor">
-				<text>编辑个人资料</text>
-			</view>
 		</view>
-		<view class="article-section">
+		<view class="common-section article-section">
 			<uni-list>
-				<uni-list-item title="我创建的" note="" show-arrow thumb=""></uni-list-item>
-				<uni-list-item title="我赞过的" note="" show-arrow thumb=""></uni-list-item>
-				<uni-list-item title="我看过的" note="" show-arrow thumb=""></uni-list-item>
-				<uni-list-item title="我收藏的" note="" show-arrow thumb=""></uni-list-item>
+				<uni-list-item title="我创建的" note="" show-arrow clickable show-extra-icon :extra-icon="{ color: '', size: '22', type: 'checkbox' }"></uni-list-item>
+				<uni-list-item title="我赞过的" note="" show-arrow thumb="" clickable show-extra-icon :extra-icon="{ color: '', size: '22', type: 'hand-up' }"></uni-list-item>
+				<uni-list-item title="我看过的" note="" show-arrow thumb="" clickable show-extra-icon :extra-icon="{ color: '', size: '22', type: 'eye' }"></uni-list-item>
+				<uni-list-item title="我收藏的" note="" show-arrow thumb="" clickable show-extra-icon :extra-icon="{ color: '', size: '22', type: 'star' }"></uni-list-item>
 			</uni-list>
 		</view>
-		<view class="extra-section">
+		<view class="common-section extra-section">
 			<uni-list>
-				<uni-list-item title="设置" note="" show-arrow thumb=""></uni-list-item>
+				<uni-list-item title="设置" note="" show-arrow thumb="" clickable show-extra-icon :extra-icon="{ color: '', size: '22', type: 'gear' }"></uni-list-item>
 			</uni-list>
 		</view>
-		<view class="logout-section">
-			<button type="warn">退出登录</button>
+		<view class="common-section logout-section">
+			<button type="warn" size="">退出登录</button>
 		</view>
 	</view>
 </template>
@@ -62,6 +65,8 @@ export default {
 				content: '需要微信授权登录后继续使用',
 			});
 			if (resOfModal.confirm) {
+				uni.showLoading({});
+
 				const { userInfo } = await uni.getUserProfile({
 					lang: 'zh_CN',
 					desc: '注册用户信息使用',
@@ -80,6 +85,8 @@ export default {
 				if (res.result.code === 0) {
 					this.$store.commit('user/UPDATE_USER_INFO', res.result.data);
 				}
+
+				uni.hideLoading();
 			}
 		},
 	},
