@@ -5,17 +5,15 @@ const db = uniCloud.database();
 
 exports.main = async (event, context) => {
 	// token验证
-	const verify = cloudUtils.jwt.verifyToken(event.token);
+	const verify = await cloudUtils.jwt.verifyToken(event.token);
 	if (!verify.pass) {
 		return verify.payload;
 	}
 
 	//event为客户端上传的参数
 	const res = await db.collection('article').doc(event._id).get();
-
-	if (Array.isArray(res.data) && res.data.length) {
-		return res.data[0];
-	} else {
-		return null;
-	}
+	return {
+		code: 0,
+		data: res.data[0],
+	};
 };
