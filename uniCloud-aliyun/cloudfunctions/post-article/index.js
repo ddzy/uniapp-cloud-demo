@@ -9,10 +9,15 @@ exports.main = async (event, context) => {
 		title: '',
 		content: '',
 		author_id: '',
-		avatar_url: "",
-		...event,
-		description: event.content.slice(0, 60),
+		avatar_url: '',
+		description: '',
+	};
+	for (const key in params) {
+		if (event.hasOwnProperty(key)) {
+			params[key] = event[key];
+		}
 	}
+	params.description = params.content.slice(0, 60);
 
 	try {
 		let res = await articleCollection.add(params);
@@ -25,7 +30,6 @@ exports.main = async (event, context) => {
 			code: -1,
 			message: '创建出错',
 			error: e,
-		}
+		};
 	}
-
 };

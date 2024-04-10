@@ -1,9 +1,9 @@
 <template>
 	<view class="container">
-		<view class="avatar">
+		<view v-if="computedAvatarUrl" class="avatar">
 			<img class="avatar-img" :src="computedAvatarUrl" alt="" />
 		</view>
-		<uni-section class="mb-10" type="line" titleFontSize="20px" :title="computedTitle" :sub-title="computedAuthor" padding="0 20px 20px">{{ computedContent }}</uni-section>
+		<uni-section class="article" type="line" titleFontSize="20px" :title="computedTitle" :sub-title="computedAuthor" padding="0 20px 20px">{{ computedContent }}</uni-section>
 		<view class="btn btn-edit">
 			<button class="btn-edit-inner" type="primary" @click="toOperatePage">
 				<uni-icons type="bars"></uni-icons>

@@ -11,13 +11,13 @@ exports.main = async (event, context) => {
 		return {
 			code: 0,
 			data: res,
-		}
+		};
 	} catch (e) {
 		//TODO handle the exception
 		return {
 			code: -1,
 			message: '',
 			error: e,
-		}
+		};
 	}
 };
