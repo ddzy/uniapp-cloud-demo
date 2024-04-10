@@ -11,13 +11,10 @@
 				<view class="user-profile-detail">
 					<text class="user-profile-nickname">{{ computedUserInfo.nickname }}</text>
 					<text class="user-profile-brief">{{ computedUserInfo.brief }}</text>
-					<view class="user-profile-gender">
-						<uni-tag :text="computedUserInfo.gender" type="primary" inverted size="mini"></uni-tag>
-					</view>
 				</view>
 
 				<view class="user-profile-editor">
-					<uni-icons type="compose"></uni-icons>
+					<uni-icons type="compose" @click="toOperateUserPage"></uni-icons>
 				</view>
 			</view>
 			<view v-else class="user-login">
@@ -58,6 +55,9 @@ export default {
 			return this.$store.state.user.isLogined;
 		},
 	},
+	onShow() {
+		this.$store.dispatch('user/DISPATCH_USER_INFO');
+	},
 	methods: {
 		async login() {
 			const resOfModal = await uni.showModal({
@@ -65,15 +65,23 @@ export default {
 				content: '需要微信授权登录后继续使用',
 			});
 			if (resOfModal.confirm) {
-				uni.showLoading({});
+				uni.showLoading({
+					mask: true,
+				});
 
 				const { userInfo } = await uni.getUserProfile({
 					lang: 'zh_CN',
 					desc: '注册用户信息使用',
 				});
-				const { code } = await uni.login({
-					provider: 'weixin',
+				// 获取当前所处的小程序环境（微信小程序/支付宝小程序...）
+				const { provider } = await uni.getProvider({
+					service: 'oauth',
 				});
+				// 获取 code
+				const { code } = await uni.login({
+					provider: provider[0],
+				});
+				// 根据 code，像自己的后台请求 openid
 				const res = await uniCloud.callFunction({
 					name: 'post-login',
 					data: {
@@ -91,6 +99,11 @@ export default {
 
 				uni.hideLoading();
 			}
+		},
+		toOperateUserPage() {
+			uni.navigateTo({
+				url: '/pages/operate-user/operate-user',
+			});
 		},
 	},
 };

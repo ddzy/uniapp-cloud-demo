@@ -9,10 +9,13 @@ uniCloud.addInterceptor('callFunction', {
 		}
 		options.data.token = uni.getStorageSync('__token__') || '';
 	},
-	success(res) {
-		if (res.result.code === '401') {
+	async success(res) {
+		if (res.result.code === 401) {
 			// 重新登录
 			store.commit('user/UPDATE_IS_LOGINED', false);
+			await uni.switchTab({
+				url: '/pages/user/user',
+			});
 		}
 	},
 });

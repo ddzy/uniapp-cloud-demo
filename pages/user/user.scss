@@ -45,16 +45,16 @@
 					font-size: 16px;
 					font-weight: 400;
 					letter-spacing: 0px;
-					color: #2b2b2b;
+					color: $uni-color-title;
 				}
 				.user-profile-brief {
 					margin: 4px 0;
-					/** 文本1 */
 					font-size: 14px;
 					font-weight: 400;
 					letter-spacing: 0px;
 					text-align: center;
 					vertical-align: middle;
+					color: $uni-color-subtitle;
 				}
 				.user-profile-gender {
 				}
@@ -75,8 +75,5 @@
 
 	.logout-section {
 		margin-top: 80px !important;
-		:deep(button) {
-			font-size: 14px;
-		}
 	}
 }
