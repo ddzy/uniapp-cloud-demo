@@ -1,6 +1,8 @@
 {
   "name": "put-article",
-  "dependencies": {},
+  "dependencies": {
+    "common-cloud-utils": "file:../common/common-cloud-utils"
+  },
   "extensions": {
     "uni-cloud-jql": {}
   }

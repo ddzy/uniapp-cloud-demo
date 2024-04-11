@@ -1,7 +1,6 @@
 'use strict';
 
 const cloudUtils = require('common-cloud-utils');
-const db = uniCloud.database();
 
 exports.main = async (event, context) => {
 	// token验证
@@ -9,6 +8,10 @@ exports.main = async (event, context) => {
 	if (!verify.pass) {
 		return verify.payload;
 	}
+	const db = await uniCloud.databaseForJQL({
+		event,
+		context,
+	});
 	const { openid } = verify.payload;
 	const articleCollection = await db.collection('article');
 	const userCollection = await db.collection('user');
@@ -18,14 +21,12 @@ exports.main = async (event, context) => {
 		content: '',
 		author_id: '',
 		avatar_url: '',
-		description: '',
 	};
 	for (const key in params) {
 		if (event.hasOwnProperty(key)) {
 			params[key] = event[key];
 		}
 	}
-	params.description = params.content.slice(0, 60);
 
 	// 设置作者
 	const author = await userCollection.where({ openid }).get();
