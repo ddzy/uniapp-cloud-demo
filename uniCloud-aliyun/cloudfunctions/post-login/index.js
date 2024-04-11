@@ -16,16 +16,18 @@ exports.main = async (event, context) => {
 		},
 	});
 	const { openid } = res.data;
+	// 生成 token
+	const token = await cloudUtils.jwt.generateToken({
+		openid,
+	});
+
+	// 查询用户
 	const foundExistingUsers = await db
 		.collection('user')
 		.where({
 			openid,
 		})
 		.get();
-	const token = await cloudUtils.jwt.generateToken({
-		openid,
-	});
-
 	// 如果用户已经存在（以 openid 作为查询标识）
 	if (foundExistingUsers && foundExistingUsers.data && foundExistingUsers.data.length) {
 		return {

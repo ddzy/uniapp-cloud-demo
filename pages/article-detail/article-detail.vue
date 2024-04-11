@@ -12,26 +12,33 @@
 	</view>
 </template>
 
-<script>
+<script lang="ts">
+import { IArticle } from '../../typings';
+
+interface IData {
+	articleId: string;
+	articleInfo?: IArticle;
+}
+
 export default {
-	data() {
+	data(): IData {
 		return {
 			articleId: '',
-			articleInfo: {},
+			articleInfo: undefined,
 		};
 	},
 	computed: {
 		computedTitle() {
-			return this.articleInfo.title || '';
+			return (this.articleInfo && this.articleInfo.title) || '';
 		},
 		computedContent() {
-			return this.articleInfo.content || '';
+			return (this.articleInfo && this.articleInfo.content) || '';
 		},
 		computedAvatarUrl() {
-			return this.articleInfo.avatar_url || '';
+			return (this.articleInfo && this.articleInfo.avatar_url) || '';
 		},
 		computedAuthor() {
-			return this.articleInfo.author || 'admin';
+			return (this.articleInfo && this.articleInfo.author_id.nickname) || '';
 		},
 	},
 	onLoad(options) {
