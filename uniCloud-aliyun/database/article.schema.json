@@ -3,10 +3,10 @@
 	"bsonType": "object",
 	"required": [],
 	"permission": {
-		"read": false,
-		"create": false,
-		"update": false,
-		"delete": false
+		"read": true,
+		"create": true,
+		"update": true,
+		"delete": true
 	},
 	"properties": {
 		"_id": {
@@ -26,6 +26,7 @@
 		},
 		"author_id": {
 			"bsonType": "string",
+			"foreignKey": "user._id",
 			"description": "作者"
 		},
 		"avatar_url": {
