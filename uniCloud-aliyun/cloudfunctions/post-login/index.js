@@ -1,7 +1,6 @@
 'use strict';
 
 const cloudUtils = require('common-cloud-utils');
-const db = uniCloud.database();
 
 exports.main = async (event, context) => {
 	//event为客户端上传的参数
@@ -19,6 +18,10 @@ exports.main = async (event, context) => {
 	// 生成 token
 	const token = await cloudUtils.jwt.generateToken({
 		openid,
+	});
+	const db = uniCloud.databaseForJQL({
+		event,
+		context,
 	});
 
 	// 查询用户
@@ -44,7 +47,8 @@ exports.main = async (event, context) => {
 			avatar_url: event.avatar_url,
 			nickname: event.nickname,
 		});
-		const foundUser = await db.collection('user').doc(createdUser._id);
+		let foundUser = await db.collection('user').doc(createdUser.id).get();
+		foundUser = foundUser.data.length > 0 ? foundUser.data[0] : null;
 
 		return {
 			code: 0,

@@ -6,5 +6,6 @@ export interface IUser {
 	gender: IUserGender;
 	brief: string;
 	created_time: number;
+	modified_time: number;
 }
 export type IUserGender = 'male' | 'female';

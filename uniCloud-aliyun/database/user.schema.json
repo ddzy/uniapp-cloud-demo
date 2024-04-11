@@ -39,6 +39,13 @@
 			"forceDefaultValue": {
 				"$env": "now"
 			}
+		},
+		"modified_time": {
+			"bsonType": "timestamp",
+			"description": "修改时间",
+			"forceDefaultValue": {
+				"$env": "now"
+			}
 		}
 	}
 }
