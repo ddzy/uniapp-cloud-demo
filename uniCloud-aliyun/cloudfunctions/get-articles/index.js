@@ -17,23 +17,17 @@ exports.main = async (event, context) => {
 		...event,
 	};
 
-	const orderBy = params.orderBy
-		.split(',')
-		.filter(Boolean)
-		.map((v) => {
-			v = v.trim();
-			let pair = v.split('=');
-			return {
-				field: pair[0],
-				direction: pair[1],
-			};
-		});
-	let res = articleCollection.limit(params.limit).skip(params.skip);
-	orderBy.forEach(async (v) => {
-		res = await res.orderBy(v.field, v.direction);
+	const foundArticlesTemp = await articleCollection.orderBy(params.orderBy).getTemp();
+	let foundArticles = await db.collection(foundArticlesTemp, 'user').get();
+	foundArticles = foundArticles.data.map((v) => {
+		return {
+			...v,
+			author_id: v.author_id[0],
+		};
 	});
-	res = await res.get();
 
-	//返回数据给客户端
-	return res;
+	return {
+		code: 0,
+		data: foundArticles,
+	};
 };

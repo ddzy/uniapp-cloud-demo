@@ -30,6 +30,7 @@ export default {
 			queryParams: {
 				limit: 15,
 				skip: 0,
+				orderBy: 'modified_time desc,created_time desc',
 			},
 			articles: [],
 		};
