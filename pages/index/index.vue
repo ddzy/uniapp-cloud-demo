@@ -8,7 +8,7 @@
 					:title="v.title"
 					:note="v.description"
 					:thumb="v.avatar_url"
-					:right-text="(v.author_id && v.author_id.nickname) || 'admin'"
+					:right-text="formatTime(v.modified_time)"
 					:clickable="true"
 					thumbSize="lg"
 					@click="toDetailPage(v)"
@@ -24,6 +24,7 @@
 </template>
 
 <script lang="ts">
+import { IArticle } from '../../typings';
 export default {
 	data() {
 		return {
@@ -32,7 +33,7 @@ export default {
 				skip: 0,
 				orderBy: 'modified_time desc,created_time desc',
 			},
-			articles: [],
+			articles: [] as IArticle[],
 		};
 	},
 	onShow() {
@@ -68,6 +69,9 @@ export default {
 				});
 			}
 			uni.hideLoading();
+		},
+		formatTime(v: number) {
+			return this.$dayjs(v).fromNow();
 		},
 		async toOperatePage() {
 			uni.navigateTo({
