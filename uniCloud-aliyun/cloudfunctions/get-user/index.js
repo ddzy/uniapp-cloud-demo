@@ -1,7 +1,6 @@
 'use strict';
 
 const cloudUtils = require('common-cloud-utils');
-const db = uniCloud.database();
 
 exports.main = async (event, context) => {
 	// event为客户端上传的参数;
@@ -12,12 +11,16 @@ exports.main = async (event, context) => {
 	}
 
 	const { openid } = verify.payload;
-	const foundUser = await db.collection('user').where({ openid }).get();
-	if (foundUser.data.length === 1) {
-		//返回数据给客户端
-		return {
-			code: 0,
-			data: foundUser.data[0],
-		};
-	}
+	const db = uniCloud.databaseForJQL({
+		event,
+		context,
+	});
+	const foundUser = await db.collection('user').where({ openid }).get({
+		getOne: true,
+	});
+
+	return {
+		code: 0,
+		data: foundUser.data,
+	};
 };

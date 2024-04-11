@@ -26,8 +26,8 @@ exports.main = async (event, context) => {
 		})
 		.getTemp();
 	// 注意collection方法内需要传入所有用到的表名，用逗号分隔，主表需要放在第一位
-	let res = await db.collection(articleCollection, 'user').get();
-	res = res.data[0];
+	let res = await db.collection(articleCollection, 'user').get({ getOne: true });
+	res = res.data;
 	res.author_id = Array.isArray(res.author_id) && res.author_id.length ? res.author_id[0] : null;
 
 	return {

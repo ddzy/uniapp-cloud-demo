@@ -29,10 +29,10 @@ exports.main = async (event, context) => {
 	}
 
 	// 设置作者
-	const author = await userCollection.where({ openid }).get();
-	if (author.data && author.data.length) {
-		params.author_id = author.data[0]._id;
-	}
+	const author = await userCollection.where({ openid }).get({
+		getOne: true,
+	});
+	params.author_id = author.data._id;
 
 	try {
 		let res = await articleCollection.add(params);

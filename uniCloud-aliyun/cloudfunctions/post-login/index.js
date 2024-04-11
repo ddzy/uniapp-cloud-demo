@@ -30,13 +30,15 @@ exports.main = async (event, context) => {
 		.where({
 			openid,
 		})
-		.get();
+		.get({
+			getOne: true,
+		});
 	// 如果用户已经存在（以 openid 作为查询标识）
-	if (foundExistingUsers && foundExistingUsers.data && foundExistingUsers.data.length) {
+	if (foundExistingUsers && foundExistingUsers.data) {
 		return {
 			code: 0,
 			data: {
-				user: foundExistingUsers.data[0],
+				user: foundExistingUsers.data,
 				token,
 			},
 		};
@@ -47,13 +49,14 @@ exports.main = async (event, context) => {
 			avatar_url: event.avatar_url,
 			nickname: event.nickname,
 		});
-		let foundUser = await db.collection('user').doc(createdUser.id).get();
-		foundUser = foundUser.data.length > 0 ? foundUser.data[0] : null;
+		let foundUser = await db.collection('user').doc(createdUser.id).get({
+			getOne: true,
+		});
 
 		return {
 			code: 0,
 			data: {
-				user: foundUser,
+				user: foundUser.data,
 				token,
 			},
 		};

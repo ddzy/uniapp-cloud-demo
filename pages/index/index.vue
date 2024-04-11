@@ -8,7 +8,7 @@
 					:title="v.title"
 					:note="v.description"
 					:thumb="v.avatar_url"
-					:right-text="v.author || 'admin'"
+					:right-text="(v.author_id && v.author_id.nickname) || 'admin'"
 					:clickable="true"
 					thumbSize="lg"
 					@click="toDetailPage(v)"
