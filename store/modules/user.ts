@@ -14,7 +14,9 @@ function genDefaultUserInfo(): IUser {
 		nickname: '',
 		avatar_url: '',
 		gender: 'male',
+		brief: '',
 		created_time: 0,
+		modified_time: 0,
 	};
 }
 

@@ -1,46 +1,94 @@
 <template>
 	<view class="container">
-		<view class="common-section user-section">
-			<view
-				class="user-avatar"
-				:style="{
-					backgroundImage: `url(${computedUserInfo.avatar_url})`,
-				}"
-			></view>
-			<view v-if="computedIsLogined" class="user-profile">
-				<view class="user-profile-detail">
-					<text class="user-profile-nickname">{{ computedUserInfo.nickname }}</text>
-					<text class="user-profile-brief">{{ computedUserInfo.brief }}</text>
-				</view>
-
-				<view class="user-profile-editor">
-					<uni-icons type="compose" @click="toOperateUserPage"></uni-icons>
-				</view>
-			</view>
-			<view v-else class="user-login">
-				<text @click="login">立即登录></text>
-			</view>
-		</view>
-		<view class="common-section article-section">
-			<uni-list>
-				<uni-list-item title="我创建的" note="" show-arrow clickable show-extra-icon :extra-icon="{ color: '', size: '22', type: 'checkbox' }"></uni-list-item>
-				<uni-list-item title="我赞过的" note="" show-arrow thumb="" clickable show-extra-icon :extra-icon="{ color: '', size: '22', type: 'hand-up' }"></uni-list-item>
-				<uni-list-item title="我看过的" note="" show-arrow thumb="" clickable show-extra-icon :extra-icon="{ color: '', size: '22', type: 'eye' }"></uni-list-item>
-				<uni-list-item title="我收藏的" note="" show-arrow thumb="" clickable show-extra-icon :extra-icon="{ color: '', size: '22', type: 'star' }"></uni-list-item>
+		<uni-group title="" class="common-section user-section" :top="0">
+			<uni-list :border="false">
+				<uni-list-item
+					:title="computedIsLogined ? computedUserInfo.nickname : '立即登录'"
+					:note="computedIsLogined ? computedUserInfo.brief : ''"
+					:thumb="computedUserInfo.avatar_url"
+					:rightText="computedIsLogined ? '编辑个人资料' : ''"
+					:extra-icon="{ color: '#f0ad4e', size: '30', type: 'info-filled' }"
+					:showExtraIcon="true"
+					showArrow
+					thumb-size="lg"
+					clickable
+					@click="login"
+				/>
 			</uni-list>
-		</view>
-		<view class="common-section extra-section">
+		</uni-group>
+		<uni-group title="" margin-top="" class="common-section">
 			<uni-list>
-				<uni-list-item title="设置" note="" show-arrow thumb="" clickable show-extra-icon :extra-icon="{ color: '', size: '22', type: 'gear' }"></uni-list-item>
+				<uni-list-item
+					title="我创建的"
+					note=""
+					show-arrow
+					clickable
+					show-extra-icon
+					:extra-icon="{ color: '', size: '22', type: 'checkbox' }"
+				></uni-list-item>
+				<uni-list-item
+					title="我赞过的"
+					note=""
+					show-arrow
+					thumb=""
+					clickable
+					show-extra-icon
+					:extra-icon="{ color: '', size: '22', type: 'hand-up' }"
+				></uni-list-item>
+				<uni-list-item
+					title="我看过的"
+					note=""
+					show-arrow
+					thumb=""
+					clickable
+					show-extra-icon
+					:extra-icon="{ color: '', size: '22', type: 'eye' }"
+				></uni-list-item>
+				<uni-list-item
+					title="我收藏的"
+					note=""
+					show-arrow
+					thumb=""
+					clickable
+					show-extra-icon
+					:extra-icon="{ color: '', size: '22', type: 'star' }"
+				></uni-list-item>
 			</uni-list>
-		</view>
-		<view class="common-section logout-section">
-			<button type="warn" size="">退出登录</button>
-		</view>
+		</uni-group>
+		<uni-group title="" margin-top="" class="common-section">
+			<uni-list>
+				<uni-list-item
+					title="设置"
+					note=""
+					show-arrow
+					thumb=""
+					clickable
+					show-extra-icon
+					:extra-icon="{ color: '', size: '22', type: 'gear' }"
+				></uni-list-item>
+			</uni-list>
+		</uni-group>
+		<uni-group
+			v-if="computedIsLogined"
+			title=""
+			:top="30"
+			class="common-section logout-section"
+		>
+			<uni-list>
+				<uni-list-item
+					title="退出登录"
+					note=""
+					thumb=""
+					clickable
+				></uni-list-item>
+			</uni-list>
+		</uni-group>
 	</view>
 </template>
 
-<script>
+<script lang="ts">
+import { IUser } from '../../typings';
+
 export default {
 	data() {
 		return {
@@ -49,7 +97,7 @@ export default {
 	},
 	computed: {
 		computedUserInfo() {
-			return this.$store.state.user.userInfo;
+			return this.$store.state.user.userInfo as IUser;
 		},
 		computedIsLogined() {
 			return this.$store.state.user.isLogined;
@@ -60,6 +108,11 @@ export default {
 	},
 	methods: {
 		async login() {
+			if (this.computedIsLogined) {
+				// 如果已经登录，则跳转到编辑个人资料页
+				return this.toOperateUserPage();
+			}
+
 			const resOfModal = await uni.showModal({
 				title: '温馨提示',
 				content: '需要微信授权登录后继续使用',
@@ -79,7 +132,7 @@ export default {
 				});
 				// 获取 code
 				const { code } = await uni.login({
-					provider: provider[0],
+					provider: provider[0] as any,
 				});
 				// 根据 code，像自己的后台请求 openid
 				const res = await uniCloud.callFunction({
@@ -100,6 +153,7 @@ export default {
 				uni.hideLoading();
 			}
 		},
+		async logout() {},
 		toOperateUserPage() {
 			uni.navigateTo({
 				url: '/pages/operate-user/operate-user',
@@ -110,5 +164,35 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import './user.scss';
+@mixin common-background() {
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: 100% 100%;
+}
+
+.container {
+	min-height: 100vh;
+	background-color: #f5f5f5;
+
+	.common-section {
+		:deep(.uni-group__content) {
+			padding: 0;
+		}
+	}
+
+	.user-section {
+		:deep(.uni-group__content) {
+			.uni-list-item__content-title {
+				font-size: 18px;
+			}
+		}
+	}
+
+	.logout-section {
+		:deep(.uni-list-item__content-title) {
+			text-align: center;
+			color: $uni-color-error;
+		}
+	}
+}
 </style>
