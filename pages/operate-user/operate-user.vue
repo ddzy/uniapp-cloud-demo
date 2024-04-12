@@ -134,7 +134,14 @@ export default {
 	},
 	methods: {
 		async chooseAvatar(e: any) {
-			this.ruleForm.avatar_url = e.detail.avatarUrl;
+			// this.ruleForm.avatar_url = e.detail.avatarUrl;
+			let path = e.detail.avatarUrl;
+
+			const res = await uniCloud.uploadFile({
+				cloudPath: path.substring(path.lastIndexOf('/') + 1),
+				filePath: path,
+			});
+			this.ruleForm.avatar_url = res.fileID;
 		},
 		async submit() {
 			uni.showLoading({
