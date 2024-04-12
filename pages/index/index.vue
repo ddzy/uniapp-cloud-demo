@@ -1,6 +1,6 @@
 <template>
 	<view class="container">
-		<view class="goods">
+		<view class="goods-section">
 			<uni-list>
 				<uni-list-item
 					v-for="v in articles"
@@ -15,10 +15,16 @@
 				></uni-list-item>
 			</uni-list>
 		</view>
-		<view class="btn btn-create">
-			<button type="primary" class="btn-inner" @click="toOperatePage">
-				<uni-icons type="plusempty"></uni-icons>
-			</button>
+		<view class="fab-section">
+			<uni-fab
+				:pop-menu="false"
+				:direction="'vertical'"
+				:horizontal="'right'"
+				:vertical="'bottom'"
+				:content="[]"
+				:popMenu="false"
+				@fabClick="fabClick"
+			></uni-fab>
 		</view>
 	</view>
 </template>
@@ -73,6 +79,9 @@ export default {
 		formatTime(v: number) {
 			return this.$dayjs(v).fromNow();
 		},
+		fabClick() {
+			this.toOperatePage();
+		},
 		async toOperatePage() {
 			uni.navigateTo({
 				url: `/pages/operate-article/operate-article`,
@@ -89,14 +98,5 @@ export default {
 
 <style lang="scss">
 .container {
-	.btn-create {
-		position: fixed;
-		right: 40px;
-		bottom: 40px;
-
-		:deep(.uni-icons) {
-			color: #fff !important;
-		}
-	}
 }
 </style>

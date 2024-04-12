@@ -1,11 +1,27 @@
 <template>
 	<view class="container">
-		<uni-forms ref="form" :rules="rules" :modelValue="ruleForm" label-position="top" class="form">
+		<uni-forms
+			ref="form"
+			:rules="rules"
+			:modelValue="ruleForm"
+			label-position="top"
+			class="form"
+		>
 			<uni-forms-item label="标题" name="title">
-				<uni-easyinput v-model="ruleForm.title" placeholder="请输入标题" :maxlength="24" />
+				<uni-easyinput
+					v-model="ruleForm.title"
+					placeholder="请输入标题"
+					:maxlength="24"
+				/>
 			</uni-forms-item>
 			<uni-forms-item label="内容" name="content">
-				<uni-easyinput v-model="ruleForm.content" autoHeight type="textarea" placeholder="请输入内容" :maxlength="-1" />
+				<uni-easyinput
+					v-model="ruleForm.content"
+					autoHeight
+					type="textarea"
+					placeholder="请输入内容"
+					:maxlength="-1"
+				/>
 			</uni-forms-item>
 			<uni-forms-item label="缩略图" name="avatar_url">
 				<view class="form-avatar_url">
@@ -22,10 +38,17 @@
 					></uni-file-picker>
 				</view>
 			</uni-forms-item>
-			<view class="btn btn-submit">
-				<button type="primary" @click="submit">
-					<uni-icons type="checkmarkempty"></uni-icons>
-				</button>
+			<view class="fab-section">
+				<uni-fab
+					:pop-menu="false"
+					:direction="'vertical'"
+					:horizontal="'right'"
+					:vertical="'bottom'"
+					:content="[]"
+					:popMenu="false"
+					:pattern="pattern"
+					@fabClick="submit"
+				></uni-fab>
 			</view>
 		</uni-forms>
 	</view>
@@ -70,6 +93,9 @@ export default {
 			},
 			articleId: '',
 			avatarUrlEcho: {},
+			pattern: {
+				icon: 'checkmarkempty',
+			},
 		};
 	},
 	computed: {
@@ -122,7 +148,9 @@ export default {
 			const form: any = this.$refs.form;
 			try {
 				const params = await form.validate();
-				this.computedIsEdit ? this.submitForEdit(params) : this.submitForCreate(params);
+				this.computedIsEdit
+					? this.submitForEdit(params)
+					: this.submitForCreate(params);
 			} catch (e) {
 				//TODO handle the exception
 			}
