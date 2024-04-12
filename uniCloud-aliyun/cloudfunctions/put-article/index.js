@@ -19,6 +19,7 @@ exports.main = async (event, context) => {
 	// 只允许用户修改自己的文章
 	const res = await articleCollection
 		.where({
+			_id: event._id,
 			author_id: userid,
 		})
 		.update(event.params);
