@@ -5,8 +5,8 @@ const cloudUtils = require('common-cloud-utils');
 exports.main = async (event, context) => {
 	// token验证
 	const verify = await cloudUtils.jwt.verifyToken(event.token);
-	if (!verify.pass) {
-		return verify.payload;
+	if (verify.code !== 0) {
+		return verify;
 	}
 
 	const db = await uniCloud.databaseForJQL({
@@ -26,9 +26,14 @@ exports.main = async (event, context) => {
 		})
 		.getTemp();
 	// 注意collection方法内需要传入所有用到的表名，用逗号分隔，主表需要放在第一位
-	let res = await db.collection(articleCollection, 'user').get({ getOne: true });
+	let res = await db
+		.collection(articleCollection, 'user')
+		.get({ getOne: true });
 	res = res.data;
-	res.author_id = Array.isArray(res.author_id) && res.author_id.length ? res.author_id[0] : null;
+	res.author_id =
+		Array.isArray(res.author_id) && res.author_id.length
+			? res.author_id[0]
+			: null;
 
 	return {
 		code: 0,

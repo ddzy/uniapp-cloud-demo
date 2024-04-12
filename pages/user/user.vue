@@ -80,6 +80,7 @@
 					note=""
 					thumb=""
 					clickable
+					@click="logout"
 				></uni-list-item>
 			</uni-list>
 		</uni-group>
@@ -107,6 +108,11 @@ export default {
 		this.$store.dispatch('user/DISPATCH_USER_INFO');
 	},
 	methods: {
+		toOperateUserPage() {
+			uni.navigateTo({
+				url: '/pages/operate-user/operate-user',
+			});
+		},
 		async login() {
 			if (this.computedIsLogined) {
 				// 如果已经登录，则跳转到编辑个人资料页
@@ -153,11 +159,18 @@ export default {
 				uni.hideLoading();
 			}
 		},
-		async logout() {},
-		toOperateUserPage() {
-			uni.navigateTo({
-				url: '/pages/operate-user/operate-user',
+		async logout() {
+			const resOfModal = await uni.showModal({
+				title: '温馨提示',
+				content: '确定要退出登录吗？',
 			});
+			if (resOfModal.confirm) {
+				const res = await uniCloud.callFunction({
+					name: 'post-logout',
+					data: {},
+				});
+				console.log('res :>> ', res);
+			}
 		},
 	},
 };

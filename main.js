@@ -1,3 +1,5 @@
+const ERROR_CODE_SHOULD_LOGIN = [401000, 401001, 401002];
+
 // callFunction 拦截器
 uniCloud.addInterceptor('callFunction', {
 	invoke(options) {
@@ -7,8 +9,8 @@ uniCloud.addInterceptor('callFunction', {
 		options.data.token = uni.getStorageSync('__token__') || '';
 	},
 	async success(res) {
-		if (res.result.code === 401) {
-			// 重新登录
+		if (ERROR_CODE_SHOULD_LOGIN.includes(res.result.code)) {
+			// 需要重新登录
 			store.commit('user/UPDATE_IS_LOGINED', false);
 			await uni.switchTab({
 				url: '/pages/user/user',

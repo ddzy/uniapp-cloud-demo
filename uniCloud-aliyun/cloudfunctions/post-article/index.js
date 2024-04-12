@@ -5,14 +5,14 @@ const cloudUtils = require('common-cloud-utils');
 exports.main = async (event, context) => {
 	// token验证
 	const verify = await cloudUtils.jwt.verifyToken(event.token);
-	if (!verify.pass) {
-		return verify.payload;
+	if (verify.code !== 0) {
+		return verify;
 	}
 	const db = await uniCloud.databaseForJQL({
 		event,
 		context,
 	});
-	const { openid } = verify.payload;
+	const { openid } = verify.data;
 	const articleCollection = await db.collection('article');
 	const userCollection = await db.collection('user');
 	//event为客户端上传的参数
@@ -42,8 +42,8 @@ exports.main = async (event, context) => {
 		};
 	} catch (e) {
 		return {
-			code: -1,
-			message: '创建出错',
+			code: 500000,
+			message: cloudUtils.errorCode[500000],
 			error: e,
 		};
 	}
