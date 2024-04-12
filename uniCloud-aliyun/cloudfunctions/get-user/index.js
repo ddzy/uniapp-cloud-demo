@@ -19,6 +19,12 @@ exports.main = async (event, context) => {
 		getOne: true,
 	});
 
+	if (!foundUser.data) {
+		return {
+			code: 401003,
+			message: cloudUtils.errorCode[401003],
+		};
+	}
 	return {
 		code: 0,
 		data: foundUser.data,

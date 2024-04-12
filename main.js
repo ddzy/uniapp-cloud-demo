@@ -1,4 +1,7 @@
-const ERROR_CODE_SHOULD_LOGIN = [401000, 401001, 401002];
+// 需要重新登录的错误码
+const ERROR_CODE_LOGIN_WHITELIST = [401000, 401001, 401002, 401003];
+// 不需要全局 toast 的错误码
+const ERROR_CODE_TOAST_BLACKLIST = [];
 
 // callFunction 拦截器
 uniCloud.addInterceptor('callFunction', {
@@ -9,7 +12,15 @@ uniCloud.addInterceptor('callFunction', {
 		options.data.token = uni.getStorageSync('__token__') || '';
 	},
 	async success(res) {
-		if (ERROR_CODE_SHOULD_LOGIN.includes(res.result.code)) {
+		if (!ERROR_CODE_TOAST_BLACKLIST.includes(res.result.code)) {
+			if (res.result.message) {
+				uni.showToast({
+					title: res.result.message,
+					icon: 'none',
+				});
+			}
+		}
+		if (ERROR_CODE_LOGIN_WHITELIST.includes(res.result.code)) {
 			// 清除 token
 			await uni.removeStorage({
 				key: '__token__',
