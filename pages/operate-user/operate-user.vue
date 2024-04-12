@@ -3,26 +3,65 @@
 		<uni-forms ref="form" :rules="rules" :model="ruleForm" label-position="top">
 			<view class="form-avatar_url">
 				<uni-forms-item label="" name="avatar_url">
-					<button class="form-avatar_url-btn" type="default" open-type="chooseAvatar" @chooseavatar="chooseAvatar">
-						<image :src="ruleForm.avatar_url" mode="" class="form-avatar_url-image"></image>
-						<uni-icons type="camera-filled" class="form-avatar_url-icon" color="#007aff" :size="24"></uni-icons>
+					<button
+						class="form-avatar_url-btn"
+						type="default"
+						open-type="chooseAvatar"
+						@chooseavatar="chooseAvatar"
+					>
+						<image
+							:src="ruleForm.avatar_url"
+							mode=""
+							class="form-avatar_url-image"
+						></image>
+						<uni-icons
+							type="camera-filled"
+							class="form-avatar_url-icon"
+							color="#007aff"
+							:size="24"
+						></uni-icons>
 					</button>
 				</uni-forms-item>
 			</view>
 			<uni-forms-item label="昵称" name="nickname" :required="true">
-				<uni-easyinput v-model="ruleForm.nickname" ref="nicknameInputRef" placeholder="不能超过12个字符" type="nickname" :maxlength="12" />
+				<uni-easyinput
+					v-model="ruleForm.nickname"
+					ref="nicknameInputRef"
+					placeholder="不能超过12个字符"
+					type="nickname"
+					:maxlength="12"
+				/>
 			</uni-forms-item>
 			<uni-forms-item label="性别" name="gender">
 				<view class="form-gender">
-					<uni-data-checkbox v-model="ruleForm.gender" :multiple="false" :localdata="genders" />
+					<uni-data-checkbox
+						v-model="ruleForm.gender"
+						:multiple="false"
+						:localdata="genders"
+					/>
 				</view>
 			</uni-forms-item>
 			<uni-forms-item label="一句话简介" name="brief">
 				<view class="form-brief">
-					<uni-easyinput v-model="ruleForm.brief" placeholder="不能超过24个字符" :maxlength="24" />
+					<uni-easyinput
+						v-model="ruleForm.brief"
+						placeholder="不能超过24个字符"
+						:maxlength="24"
+					/>
 				</view>
 			</uni-forms-item>
-			<button class="form-submit" type="primary" @click="submit">保存</button>
+			<uni-fab
+				:pop-menu="false"
+				:direction="'vertical'"
+				:horizontal="'right'"
+				:vertical="'bottom'"
+				:content="[]"
+				:popMenu="false"
+				:pattern="{
+					icon: 'checkmarkempty',
+				}"
+				@fabClick="submit"
+			></uni-fab>
 		</uni-forms>
 	</view>
 </template>
@@ -30,7 +69,8 @@
 <script lang="ts">
 import { IUser } from '../../typings/index';
 
-interface IRuleForm extends Pick<IUser, 'avatar_url' | 'nickname' | 'gender' | 'brief'> {}
+interface IRuleForm
+	extends Pick<IUser, 'avatar_url' | 'nickname' | 'gender' | 'brief'> {}
 
 function genDefaultRuleForm(): IRuleForm {
 	return {
