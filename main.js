@@ -10,6 +10,10 @@ uniCloud.addInterceptor('callFunction', {
 	},
 	async success(res) {
 		if (ERROR_CODE_SHOULD_LOGIN.includes(res.result.code)) {
+			// 清除 token
+			await uni.removeStorage({
+				key: '__token__',
+			});
 			// 需要重新登录
 			store.commit('user/UPDATE_IS_LOGINED', false);
 			await uni.switchTab({
