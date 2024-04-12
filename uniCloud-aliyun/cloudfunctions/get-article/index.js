@@ -3,12 +3,6 @@
 const cloudUtils = require('common-cloud-utils');
 
 exports.main = async (event, context) => {
-	// token验证
-	const verify = await cloudUtils.jwt.verifyToken(event.token);
-	if (verify.code !== 0) {
-		return verify;
-	}
-
 	const db = await uniCloud.databaseForJQL({
 		event,
 		context,
