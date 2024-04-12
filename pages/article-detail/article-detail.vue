@@ -25,11 +25,6 @@
 		<view class="extra-section">
 			<text>{{ computedModifiedTime }}</text>
 		</view>
-		<!-- <view class="btn btn-edit">
-			<button class="btn-edit-inner" type="primary" @click="toOperatePage">
-				<uni-icons type="bars"></uni-icons>
-			</button>
-		</view> -->
 		<view class="fab-section">
 			<uni-fab :pop-menu="true" :direction="'vertical'" :horizontal="'right'" :vertical="'bottom'" :content="fabs" @trigger="fabTrigger"></uni-fab>
 		</view>
