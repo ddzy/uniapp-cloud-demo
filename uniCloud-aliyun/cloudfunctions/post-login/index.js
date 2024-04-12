@@ -15,10 +15,6 @@ exports.main = async (event, context) => {
 		},
 	});
 	const { openid } = res.data;
-	// 生成 token
-	const token = await cloudUtils.jwt.generateToken({
-		openid,
-	});
 	const db = uniCloud.databaseForJQL({
 		event,
 		context,
@@ -35,6 +31,12 @@ exports.main = async (event, context) => {
 		});
 	// 如果用户已经存在（以 openid 作为查询标识）
 	if (foundExistingUsers && foundExistingUsers.data) {
+		// 生成 token
+		const token = await cloudUtils.jwt.generateToken({
+			openid,
+			userid: foundExistingUsers.data._id,
+		});
+
 		return {
 			code: 0,
 			data: {
@@ -51,6 +53,11 @@ exports.main = async (event, context) => {
 		});
 		let foundUser = await db.collection('user').doc(createdUser.id).get({
 			getOne: true,
+		});
+		// 生成 token
+		const token = await cloudUtils.jwt.generateToken({
+			openid,
+			userid: foundUser.data._id,
 		});
 
 		return {
