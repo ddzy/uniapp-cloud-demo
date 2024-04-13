@@ -1,3 +1,5 @@
+import constants from './constants/index';
+
 // 需要重新登录的错误码
 const ERROR_CODE_LOGIN_WHITELIST = [401000, 401001, 401002, 401003];
 // 不需要全局 toast 的错误码
@@ -9,7 +11,7 @@ uniCloud.addInterceptor('callFunction', {
 		if (!options.data) {
 			options.data = {};
 		}
-		options.data.token = uni.getStorageSync('__token__') || '';
+		options.data.token = uni.getStorageSync(constants.token.TOKEN) || '';
 	},
 	async success(res) {
 		if (!ERROR_CODE_TOAST_BLACKLIST.includes(res.result.code)) {
@@ -23,7 +25,7 @@ uniCloud.addInterceptor('callFunction', {
 		if (ERROR_CODE_LOGIN_WHITELIST.includes(res.result.code)) {
 			// 清除 token
 			await uni.removeStorage({
-				key: '__token__',
+				key: constants.token.TOKEN,
 			});
 			// 需要重新登录
 			store.commit('user/UPDATE_IS_LOGINED', false);

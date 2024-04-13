@@ -89,6 +89,7 @@
 
 <script lang="ts">
 import { IUser } from '../../typings';
+import constants from '../../constants/index';
 
 export default {
 	data() {
@@ -153,7 +154,7 @@ export default {
 					this.$store.commit('user/UPDATE_USER_INFO', res.result.data.user);
 					this.$store.commit('user/UPDATE_IS_LOGINED', true);
 					// 登录成功，存储token
-					uni.setStorageSync('__token__', res.result.data.token);
+					uni.setStorageSync(constants.token.TOKEN, res.result.data.token);
 				}
 
 				uni.hideLoading();
