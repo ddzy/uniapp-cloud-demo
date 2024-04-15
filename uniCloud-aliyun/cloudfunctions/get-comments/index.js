@@ -29,21 +29,19 @@ exports.main = async (event, context) => {
 	const comments = [];
 	let res = await db.collection(commentCollection, 'user').get();
 	for (let comment of res.data) {
-		// 查询该评论下的回复
 		const {
-			result: { data: replies },
+			result: { data: reply_total },
 		} = await uniCloud.callFunction({
-			name: 'get-replies',
+			name: 'get-reply-total',
 			data: {
 				comment_id: comment._id,
-				orderBy: params.orderBy,
 				token: event.token,
 			},
 		});
 		comments.push({
 			...comment,
 			author_id: comment.author_id[0],
-			replies,
+			reply_total,
 		});
 	}
 

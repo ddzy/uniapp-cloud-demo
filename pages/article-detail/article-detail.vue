@@ -53,7 +53,7 @@
 						@click="reply(v, v.author_id)"
 					>
 					</uni-list-item>
-					<view v-if="!!v.replies.length" class="reply-section">
+					<view v-if="!!v.reply_total" class="reply-section">
 						<uni-list :border="false">
 							<uni-list-item
 								v-for="vv in v.replies"
@@ -84,6 +84,10 @@
 								</template>
 							</uni-list-item>
 						</uni-list>
+						<view class="reply-loadmore" @click="fetchReplies(v._id)">
+							<text class="reply-loadmore-text"> 查看回复 </text>
+							<uni-icons class="reply-loadmore-icon" type="down"></uni-icons>
+						</view>
 					</view>
 				</template>
 			</uni-list>
@@ -128,6 +132,7 @@ import { IComment, IReply, IUser } from '../../typings';
 
 interface ILocalComment extends IComment {
 	replies: ILocalReply[];
+	reply_total: number;
 }
 interface ILocalReply extends IReply {}
 
@@ -227,21 +232,16 @@ export default {
 					return {
 						...v,
 						created_time: this.$dayjs(v.created_time).fromNow(),
-						replies: v.replies.map((vv) => {
-							return {
-								...vv,
-								created_time: this.$dayjs(vv.created_time).fromNow(),
-							};
-						}),
+						replies: [],
 					};
 				});
 			}
 		},
-		async fetchReplies() {
+		async fetchReplies(commentId: string) {
 			const res = await uniCloud.callFunction({
 				name: 'get-replies',
 				data: {
-					comment_id: this.replyInfo.comment._id,
+					comment_id: commentId,
 					orderBy: 'created_time desc',
 				},
 			});
@@ -255,7 +255,7 @@ export default {
 				this.comments = this.comments.map((v) => {
 					return {
 						...v,
-						replies: v._id === this.replyInfo.comment._id ? replies : v.replies,
+						replies: v._id === commentId ? replies : v.replies,
 					};
 				});
 			}
@@ -327,7 +327,7 @@ export default {
 						title: '回复成功',
 					});
 					this.inputValue = '';
-					this.fetchReplies();
+					this.fetchReplies(this.replyInfo.comment._id);
 				}
 				this.isInputCommitting = false;
 			} catch (e) {
@@ -438,7 +438,6 @@ export default {
 .reply-section {
 	margin-left: 20px;
 	margin-bottom: 10px;
-	padding: 10px;
 	background-color: $uni-bg-color;
 	:deep(.uni-list-item__container) {
 		padding: 5px !important;
@@ -466,6 +465,19 @@ export default {
 			color: #3b4144;
 			.reply-content-nickname {
 				color: $uni-color-primary;
+			}
+		}
+	}
+	.reply-loadmore {
+		text-align: center;
+		.reply-loadmore-text {
+			font-size: 14px;
+			color: $uni-color-primary;
+		}
+		.reply-loadmore-icon {
+			:deep(.uni-icons) {
+				color: $uni-color-primary !important;
+				font-size: 14px !important;
 			}
 		}
 	}
