@@ -2,9 +2,10 @@
 {
 	"bsonType": "object",
 	"required": [
-		"author_id",
-		"article_id",
-		"content"
+		"content",
+		"from",
+		"to",
+		"comment_id"
 	],
 	"permission": {
 		"read": true,
@@ -16,27 +17,32 @@
 		"_id": {
 			"description": "ID，系统自动生成"
 		},
-		"author_id": {
+		"from": {
 			"bsonType": "string",
-			"description": "评论人",
+			"description": "回复人",
 			"foreignKey": "user._id"
 		},
-		"article_id": {
+		"to": {
 			"bsonType": "string",
-			"description": "评论的文章",
-			"foreignKey": "article._id"
+			"description": "回复谁",
+			"foreignKey": "user._id"
+		},
+		"comment_id": {
+			"bsonType": "string",
+			"description": "所属的评论",
+			"foreignKey": "comment._id"
 		},
 		"content": {
 			"bsonType": "string",
-			"description": "评论内容"
+			"description": "回复的文本内容"
 		},
 		"avatar_url": {
 			"bsonType": "string",
-			"description": "图片评论"
+			"description": "回复的图片内容"
 		},
 		"created_time": {
 			"bsonType": "timestamp",
-			"description": "创建时间",
+			"description": "回复时间",
 			"forceDefaultValue": {
 				"$env": "now"
 			}

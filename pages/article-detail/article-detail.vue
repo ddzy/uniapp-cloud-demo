@@ -42,36 +42,53 @@
 		</uni-group>
 		<uni-group title="评论" :top="0" class="comment-section">
 			<uni-list :border="false">
-				<uni-list-item
-					v-for="v in comments"
-					:key="v._id"
-					:title="v.author_id.nickname"
-					:note="v.content"
-					:thumb="v.author_id.avatar_url"
-				>
-					<template #footer>
-						<view class="comment-footer">
-							<view class="comment-time">
-								<text>{{ v.created_time }}</text>
-							</view>
-							<view class="comment-vote">
-								<uni-icons type="hand-up" :size="22"></uni-icons>
-							</view>
-						</view>
-					</template>
-				</uni-list-item>
+				<template v-for="v in comments" :key="v._id">
+					<uni-list-item
+						:title="v.author_id.nickname"
+						:note="v.content"
+						:thumb="v.author_id.avatar_url"
+						:right-text="v.created_time"
+						thumb-size="sm"
+						clickable
+						@click="reply(v, v.author_id)"
+					>
+					</uni-list-item>
+					<view class="reply-section">
+						<uni-list :border="false">
+							<uni-list-item
+								thumb-size="sm"
+								clickable
+								:thumb="v.author_id.avatar_url"
+								:right-text="v.created_time"
+							>
+								<template #body>
+									<view class="reply-body">
+										<view class="reply-nickname">
+											<text class="replay-nickname-from">我回复</text>
+											<text class="replay-nickname-to">@微信用户</text>
+										</view>
+										<view class="reply-content">
+											<text>回复的内容</text>
+										</view>
+									</view>
+								</template>
+							</uni-list-item>
+						</uni-list>
+					</view>
+				</template>
 			</uni-list>
 		</uni-group>
 		<view class="fab-section">
 			<view class="fab-inner">
 				<view class="fab-inputer">
 					<uni-search-bar
-						v-model="commentValue"
-						:focus="false"
+						v-model="inputValue"
+						:focus="isInputFocus"
 						:cancel-button="'none'"
-						placeholder="友好评论"
-						@confirm="confirmComment"
-						@cancel="cancelComment"
+						:placeholder="computedInputPlaceholder"
+						@confirm="confirmInput"
+						@cancel="cancelInput"
+						@blur="blurInput"
 					>
 						<template v-slot:searchIcon>
 							<uni-icons color="#999999" size="22" type="compose" />
@@ -97,9 +114,10 @@
 </template>
 
 <script lang="ts">
-import { IArticle, IComment, IUniFabContent } from '../../typings';
+import { IComment, IReply, IUser } from '../../typings';
 
 interface ILocalComment extends IComment {}
+interface ILocalReply extends IReply {}
 
 export default {
 	data() {
@@ -107,9 +125,20 @@ export default {
 			articleId: '',
 			articleInfo: undefined,
 			isFollowed: false,
-			commentValue: '',
-			isCommenting: false,
+			inputValue: '',
+			isInputCommitting: false,
+			isInputFocus: false,
 			comments: [] as ILocalComment[],
+			isReply: false, // 当前是评论还是回复
+			replyInfo: {
+				to: {
+					_id: '',
+					nickname: '',
+				},
+				comment: {
+					_id: '',
+				},
+			},
 		};
 	},
 	computed: {
@@ -140,6 +169,9 @@ export default {
 		},
 		computedCurrentUserId() {
 			return this.$store.state.user.userInfo._id || '';
+		},
+		computedInputPlaceholder() {
+			return this.isReply ? `回复 ${this.replyInfo.to.nickname}` : `理性评论`;
 		},
 	},
 	onLoad(options) {
@@ -195,15 +227,31 @@ export default {
 		async follow() {
 			this.isFollowed = !this.isFollowed;
 		},
-		async confirmComment(v: string) {
-			this.isCommenting = true;
+		async confirmInput(v: string) {
+			this.isReply ? this.sendReply() : this.sendComment();
+		},
+		async cancelInput(v: string) {
+			console.log('v :>> ', v);
+		},
+		async blurInput() {
+			this.isReply = false;
+			this.isInputFocus = false;
+		},
+		async reply(comment: ILocalComment, to: IUser) {
+			this.isReply = true;
+			this.isInputFocus = true;
+			this.replyInfo.comment = comment;
+			this.replyInfo.to = to;
+		},
+		async sendComment() {
+			this.isInputCommitting = true;
 
 			try {
 				const res = await uniCloud.callFunction({
 					name: 'post-comment',
 					data: {
 						article_id: this.articleId,
-						content: this.commentValue,
+						content: this.inputValue,
 					},
 				});
 				if (res.result.code === 0) {
@@ -211,17 +259,40 @@ export default {
 						icon: 'none',
 						title: '评论成功',
 					});
-					this.commentValue = '';
+					this.inputValue = '';
 					this.fetchComments();
 				}
-				this.isCommenting = false;
+				this.isInputCommitting = false;
 			} catch (e) {
 				//TODO handle the exception
-				this.isCommenting = false;
+				this.isInputCommitting = false;
 			}
 		},
-		async cancelComment(v: string) {
-			console.log('v :>> ', v);
+		async sendReply() {
+			this.isInputCommitting = true;
+
+			try {
+				const res = await uniCloud.callFunction({
+					name: 'post-reply',
+					data: {
+						comment_id: this.replyInfo.comment._id,
+						to: this.replyInfo.to._id,
+						content: this.inputValue,
+					},
+				});
+				if (res.result.code === 0) {
+					uni.showToast({
+						icon: 'none',
+						title: '回复成功',
+					});
+					this.inputValue = '';
+					this.fetchComments();
+				}
+				this.isInputCommitting = false;
+			} catch (e) {
+				//TODO handle the exception
+				this.isInputCommitting = false;
+			}
 		},
 	},
 };
@@ -305,8 +376,44 @@ export default {
 			color: #999;
 		}
 	}
+	:deep(.uni-group__content) {
+		padding: 0 10px;
+	}
 	:deep(.uni-list-item) {
 		.comment-footer {
+		}
+	}
+}
+
+.reply-section {
+	margin-left: 10px;
+	margin-bottom: 10px;
+	padding: 10px;
+	background-color: $uni-bg-color-grey;
+	:deep(.uni-list-item__container) {
+		padding: 5px !important;
+	}
+	.reply-body {
+		flex: 1;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		padding-right: 8px;
+		color: #3b4144;
+		.reply-nickname {
+			overflow: hidden;
+			font-size: 14px;
+			color: #3b4144;
+			.replay-nickname-to {
+				color: $uni-color-primary;
+			}
+		}
+		.reply-content {
+			overflow: hidden;
+			margin-top: 6rpx;
+			color: #999;
+			font-size: 12px;
 		}
 	}
 }
