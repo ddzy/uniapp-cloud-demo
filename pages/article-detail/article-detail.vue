@@ -219,7 +219,7 @@ export default {
 				name: 'get-comments',
 				data: {
 					article_id: this.articleId,
-					sort: 'created_time desc',
+					orderBy: 'created_time desc',
 				},
 			});
 			if (res.result.code === 0) {
@@ -233,6 +233,29 @@ export default {
 								created_time: this.$dayjs(vv.created_time).fromNow(),
 							};
 						}),
+					};
+				});
+			}
+		},
+		async fetchReplies() {
+			const res = await uniCloud.callFunction({
+				name: 'get-replies',
+				data: {
+					comment_id: this.replyInfo.comment._id,
+					orderBy: 'created_time desc',
+				},
+			});
+			if (res.result.code === 0) {
+				let replies = res.result.data.map((v: ILocalReply) => {
+					return {
+						...v,
+						created_time: this.$dayjs(v.created_time).fromNow(),
+					};
+				});
+				this.comments = this.comments.map((v) => {
+					return {
+						...v,
+						replies: v._id === this.replyInfo.comment._id ? replies : v.replies,
 					};
 				});
 			}
@@ -304,7 +327,7 @@ export default {
 						title: '回复成功',
 					});
 					this.inputValue = '';
-					this.fetchComments();
+					this.fetchReplies();
 				}
 				this.isInputCommitting = false;
 			} catch (e) {
@@ -401,7 +424,13 @@ export default {
 		padding: 0 10px;
 	}
 	:deep(.uni-list-item) {
-		.comment-footer {
+		.uni-list-item__content-title {
+			color: #999;
+			font-size: 12px;
+		}
+		.uni-list-item__content-note {
+			font-size: 14px;
+			color: #3b4144;
 		}
 	}
 }
@@ -424,8 +453,8 @@ export default {
 		color: #3b4144;
 		.reply-nickname {
 			overflow: hidden;
-			font-size: 14px;
-			color: #3b4144;
+			color: #999;
+			font-size: 12px;
 			.replay-nickname-to {
 				color: $uni-color-primary;
 			}
@@ -433,8 +462,8 @@ export default {
 		.reply-content {
 			overflow: hidden;
 			margin-top: 6rpx;
-			color: #999;
-			font-size: 12px;
+			font-size: 14px;
+			color: #3b4144;
 			.reply-content-nickname {
 				color: $uni-color-primary;
 			}

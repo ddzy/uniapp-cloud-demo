@@ -36,6 +36,7 @@ exports.main = async (event, context) => {
 			name: 'get-replies',
 			data: {
 				comment_id: comment._id,
+				orderBy: params.orderBy,
 				token: event.token,
 			},
 		});
