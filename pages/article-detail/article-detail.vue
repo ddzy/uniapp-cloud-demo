@@ -53,22 +53,32 @@
 						@click="reply(v, v.author_id)"
 					>
 					</uni-list-item>
-					<view class="reply-section">
+					<view v-if="!!v.replies.length" class="reply-section">
 						<uni-list :border="false">
 							<uni-list-item
+								v-for="vv in v.replies"
 								thumb-size="sm"
 								clickable
-								:thumb="v.author_id.avatar_url"
-								:right-text="v.created_time"
+								:key="vv._id"
+								:thumb="vv.from.avatar_url"
+								:right-text="vv.created_time"
 							>
 								<template #body>
 									<view class="reply-body">
 										<view class="reply-nickname">
-											<text class="replay-nickname-from">我回复</text>
-											<text class="replay-nickname-to">@微信用户</text>
+											<text class="replay-nickname-from">{{
+												vv.from.nickname
+											}}</text>
 										</view>
 										<view class="reply-content">
-											<text>回复的内容</text>
+											<text>
+												<text>回复</text>
+												<text class="reply-content-nickname"
+													>@{{ vv.to.nickname }}
+												</text>
+												<text>：</text>
+											</text>
+											<text>{{ vv.content }}</text>
 										</view>
 									</view>
 								</template>
@@ -116,7 +126,9 @@
 <script lang="ts">
 import { IComment, IReply, IUser } from '../../typings';
 
-interface ILocalComment extends IComment {}
+interface ILocalComment extends IComment {
+	replies: ILocalReply[];
+}
 interface ILocalReply extends IReply {}
 
 export default {
@@ -215,6 +227,12 @@ export default {
 					return {
 						...v,
 						created_time: this.$dayjs(v.created_time).fromNow(),
+						replies: v.replies.map((vv) => {
+							return {
+								...vv,
+								created_time: this.$dayjs(vv.created_time).fromNow(),
+							};
+						}),
 					};
 				});
 			}
@@ -305,6 +323,9 @@ export default {
 
 .banner-section {
 	text-align: center;
+	.banner {
+		width: 100%;
+	}
 }
 
 .title-section {
@@ -386,10 +407,10 @@ export default {
 }
 
 .reply-section {
-	margin-left: 10px;
+	margin-left: 20px;
 	margin-bottom: 10px;
 	padding: 10px;
-	background-color: $uni-bg-color-grey;
+	background-color: $uni-bg-color;
 	:deep(.uni-list-item__container) {
 		padding: 5px !important;
 	}
@@ -414,6 +435,9 @@ export default {
 			margin-top: 6rpx;
 			color: #999;
 			font-size: 12px;
+			.reply-content-nickname {
+				color: $uni-color-primary;
+			}
 		}
 	}
 }
