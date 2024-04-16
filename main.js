@@ -14,6 +14,9 @@ uniCloud.addInterceptor('callFunction', {
 		options.data.token = uni.getStorageSync(constants.token.TOKEN) || '';
 	},
 	async success(res) {
+		if (!res.result) {
+			return;
+		}
 		if (!ERROR_CODE_TOAST_BLACKLIST.includes(res.result.code)) {
 			if (res.result.message) {
 				uni.showToast({
@@ -34,6 +37,13 @@ uniCloud.addInterceptor('callFunction', {
 			});
 		}
 	},
+});
+
+uni.addInterceptor('request', {
+	invoke(options) {},
+	success() {},
+	fail() {},
+	complete() {},
 });
 
 import dayjs from 'dayjs';

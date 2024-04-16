@@ -31,6 +31,9 @@ function generateToken(payload) {
 async function verifyToken(token) {
 	return new Promise(async (resolve, reject) => {
 		try {
+			if (!token) {
+				throw new Error(1);
+			}
 			// 判断 token 是否已经失效（即存在于黑名单中)
 			let { total } = await tokenCollection.where({ token }).count();
 			if (total) {

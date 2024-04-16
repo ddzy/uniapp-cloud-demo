@@ -7,7 +7,7 @@ exports.main = async (event, context) => {
 	// 验证 token
 	const verify = await cloudUtils.jwt.verifyToken(event.token);
 	if (verify.code !== 0) {
-		return verify.data;
+		return verify;
 	}
 	const { userid } = verify.data;
 	const db = await uniCloud.databaseForJQL();
@@ -20,11 +20,21 @@ exports.main = async (event, context) => {
 		avatar_url: event.avatar_url || '',
 	};
 
-	const res = await replyCollection.add(params);
+	const { id } = await replyCollection.add(params);
+	const replyCollectionTemp = await replyCollection
+		.where({
+			_id: id,
+		})
+		.getTemp();
+	const { data } = await db.collection(replyCollectionTemp, 'user').get({
+		getOne: true,
+	});
+	data.from = data.from[0];
+	data.to = data.to[0];
 
 	//返回数据给客户端
 	return {
 		code: 0,
-		data: res,
+		data,
 	};
 };

@@ -6,7 +6,7 @@ exports.main = async (event, context) => {
 	//event为客户端上传的参数
 	const verify = await cloudUtils.jwt.verifyToken(event.token);
 	if (verify.code !== 0) {
-		return verify.data;
+		return verify;
 	}
 	const { userid } = await verify.data;
 	const db = await uniCloud.databaseForJQL({

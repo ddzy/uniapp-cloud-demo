@@ -42,7 +42,7 @@
 		</uni-group>
 		<uni-group title="评论" :top="0" class="comment-section">
 			<uni-list :border="false">
-				<template v-for="v in comments" :key="v._id">
+				<template v-for="(v, i) in comments" :key="v._id">
 					<uni-list-item
 						:title="v.author_id.nickname"
 						:note="v.content"
@@ -50,45 +50,70 @@
 						:right-text="v.created_time"
 						thumb-size="sm"
 						clickable
-						@click="reply(v, v.author_id)"
+						@click="reply(v, v.author_id, i)"
 					>
 					</uni-list-item>
-					<view v-if="!!v.reply_total" class="reply-section">
-						<uni-list :border="false">
-							<uni-list-item
-								v-for="vv in v.replies"
-								thumb-size="sm"
-								clickable
-								:key="vv._id"
-								:thumb="vv.from.avatar_url"
-								:right-text="vv.created_time"
-							>
-								<template #body>
-									<view class="reply-body">
-										<view class="reply-nickname">
-											<text class="replay-nickname-from">{{
-												vv.from.nickname
-											}}</text>
-										</view>
-										<view class="reply-content">
-											<text>
-												<text>回复</text>
-												<text class="reply-content-nickname"
-													>@{{ vv.to.nickname }}
-												</text>
-												<text>：</text>
-											</text>
-											<text>{{ vv.content }}</text>
-										</view>
-									</view>
-								</template>
-							</uni-list-item>
-						</uni-list>
-						<view class="reply-loadmore" @click="fetchReplies(v._id)">
-							<text class="reply-loadmore-text"> 查看回复 </text>
-							<uni-icons class="reply-loadmore-icon" type="down"></uni-icons>
-						</view>
-					</view>
+					<unicloud-db
+						v-slot:default="{ data, error, pagination, hasMore, loading }"
+						collection="reply,user"
+						:ref="`replyDBRef-${i}`"
+						orderby="created_time desc"
+						:where="`comment_id == '${v._id}'`"
+						:getone="false"
+						:getcount="true"
+						:loadtime="'auto'"
+						:page-size="5"
+						@load="replyLoad"
+					>
+						<view v-if="error">{{ error.message }}</view>
+						<template v-else-if="!!pagination.count">
+							<view class="reply-section">
+								<uni-list :border="false">
+									<uni-list-item
+										v-for="vv in data"
+										thumb-size="sm"
+										clickable
+										:key="vv._id"
+										:thumb="vv.from.avatar_url"
+										:right-text="vv.created_time"
+									>
+										<template #body>
+											<view class="reply-body">
+												<view class="reply-nickname">
+													<text class="replay-nickname-from">{{
+														vv.from.nickname
+													}}</text>
+												</view>
+												<view class="reply-content">
+													<text>
+														<text>回复</text>
+														<text class="reply-content-nickname"
+															>@{{ vv.to.nickname }}
+														</text>
+														<text>：</text>
+													</text>
+													<text>{{ vv.content }}</text>
+												</view>
+											</view>
+										</template>
+									</uni-list-item>
+								</uni-list>
+								<view
+									v-if="hasMore"
+									class="reply-loadmore"
+									@click="replyLoadMore(i)"
+								>
+									<text class="reply-loadmore-text">
+										查看剩余{{ pagination.count - data.length }}条回复
+									</text>
+									<uni-icons
+										class="reply-loadmore-icon"
+										type="down"
+									></uni-icons>
+								</view>
+							</view>
+						</template>
+					</unicloud-db>
 				</template>
 			</uni-list>
 		</uni-group>
@@ -130,11 +155,10 @@
 <script lang="ts">
 import { IComment, IReply, IUser } from '../../typings';
 
-interface ILocalComment extends IComment {
-	replies: ILocalReply[];
-	reply_total: number;
+interface ILocalComment extends IComment {}
+interface ILocalReply extends Omit<IReply, 'created_time'> {
+	created_time: string;
 }
-interface ILocalReply extends IReply {}
 
 export default {
 	data() {
@@ -155,6 +179,7 @@ export default {
 				comment: {
 					_id: '',
 				},
+				commentIndex: 0,
 			},
 		};
 	},
@@ -227,37 +252,35 @@ export default {
 					orderBy: 'created_time desc',
 				},
 			});
-			if (res.result.code === 0) {
+			if (res.result && res.result.code === 0) {
 				this.comments = res.result.data.map((v: ILocalComment) => {
 					return {
 						...v,
 						created_time: this.$dayjs(v.created_time).fromNow(),
-						replies: [],
 					};
 				});
 			}
 		},
-		async fetchReplies(commentId: string) {
-			const res = await uniCloud.callFunction({
-				name: 'get-replies',
-				data: {
-					comment_id: commentId,
-					orderBy: 'created_time desc',
-				},
+		async replyLoad(data: ILocalReply[], ended: boolean, pagination) {
+			data.forEach((v) => {
+				v.created_time = this.$dayjs(v.created_time).fromNow();
+				v.from = v.from[0];
+				v.to = v.to[0];
 			});
-			if (res.result.code === 0) {
-				let replies = res.result.data.map((v: ILocalReply) => {
-					return {
-						...v,
-						created_time: this.$dayjs(v.created_time).fromNow(),
-					};
-				});
-				this.comments = this.comments.map((v) => {
-					return {
-						...v,
-						replies: v._id === commentId ? replies : v.replies,
-					};
-				});
+		},
+		async replyLoadMore(index: number) {
+			const dbs = this.$refs[`replyDBRef-${index}`][0];
+			dbs.loadMore();
+		},
+		async replyAppend(row: ILocalReply) {
+			// 如果列表本来没有数据，那么创建评论后手动获取一次初始数据
+			const dbs = this.$refs[`replyDBRef-${this.replyInfo.commentIndex}`][0];
+			if (!dbs.dataList.length) {
+				dbs.loadData();
+			} else {
+				// 反之，将刚刚创建的评论追加到当前列表尾部
+				row.created_time = this.$dayjs(row.created_time).fromNow();
+				dbs.dataList = dbs.dataList.concat(row);
 			}
 		},
 		toOperatePage() {
@@ -278,10 +301,11 @@ export default {
 			this.isReply = false;
 			this.isInputFocus = false;
 		},
-		async reply(comment: ILocalComment, to: IUser) {
+		async reply(comment: ILocalComment, to: IUser, commentIndex: number) {
 			this.isReply = true;
 			this.isInputFocus = true;
 			this.replyInfo.comment = comment;
+			this.replyInfo.commentIndex = commentIndex;
 			this.replyInfo.to = to;
 		},
 		async sendComment() {
@@ -295,7 +319,7 @@ export default {
 						content: this.inputValue,
 					},
 				});
-				if (res.result.code === 0) {
+				if (res.result && res.result.code === 0) {
 					uni.showToast({
 						icon: 'none',
 						title: '评论成功',
@@ -311,7 +335,6 @@ export default {
 		},
 		async sendReply() {
 			this.isInputCommitting = true;
-
 			try {
 				const res = await uniCloud.callFunction({
 					name: 'post-reply',
@@ -321,15 +344,15 @@ export default {
 						content: this.inputValue,
 					},
 				});
-				if (res.result.code === 0) {
+				if (res.result && res.result.code === 0) {
 					uni.showToast({
 						icon: 'none',
 						title: '回复成功',
 					});
 					this.inputValue = '';
-					this.fetchReplies(this.replyInfo.comment._id);
 				}
 				this.isInputCommitting = false;
+				this.replyAppend(res.result.data);
 			} catch (e) {
 				//TODO handle the exception
 				this.isInputCommitting = false;
