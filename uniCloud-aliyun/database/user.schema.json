@@ -21,7 +21,7 @@
 			"description": "昵称",
 			"defaultValue": ""
 		},
-		"avatar_url": {
+		"avatar": {
 			"description": "头像",
 			"defaultValue": ""
 		},

@@ -36,7 +36,7 @@
 			"bsonType": "string",
 			"description": "回复的文本内容"
 		},
-		"avatar_url": {
+		"avatar": {
 			"bsonType": "string",
 			"description": "回复的图片内容"
 		},

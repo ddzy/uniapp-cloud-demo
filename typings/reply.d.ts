@@ -7,6 +7,6 @@ export interface IReply {
 	to: IUser;
 	comment_id: IComment;
 	content: string;
-	avatar_url: string;
+	avatar: string;
 	created_time: number;
 }

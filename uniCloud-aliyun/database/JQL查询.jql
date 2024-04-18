@@ -13,3 +13,5 @@
 // db.collection('user').where({
 // 	nickname: /\w*/
 // }).remove();
+
+db.collection('uni-id-users').get()

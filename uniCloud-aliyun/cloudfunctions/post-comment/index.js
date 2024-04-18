@@ -1,24 +1,27 @@
 'use strict';
 
 const cloudUtils = require('common-cloud-utils');
+const uniIdCommon = require('uni-id-common');
 
 exports.main = async (event, context) => {
-	//event为客户端上传的参数
-	const verify = await cloudUtils.jwt.verifyToken(event.token);
-	if (verify.code !== 0) {
+	const uniId = await uniIdCommon.createInstance({
+		context,
+	})
+	const verify = await uniId.checkToken(event.uniIdToken);
+	if (verify.errCode) {
 		return verify;
 	}
-	const { userid } = await verify.data;
+	const { uid } = verify;
 	const db = await uniCloud.databaseForJQL({
 		event,
 		context,
 	});
 	const commentCollection = await db.collection('comment');
 	const params = {
-		author_id: userid,
+		author_id: uid,
 		article_id: '',
 		content: '',
-		avatar_url: '',
+		avatar: '',
 	};
 
 	for (let key in params) {

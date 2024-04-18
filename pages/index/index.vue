@@ -7,7 +7,7 @@
 					:key="v._id"
 					:title="v.title"
 					:note="v.description"
-					:thumb="v.avatar_url"
+					:thumb="v.avatar"
 					:right-text="formatTime(v.modified_time)"
 					:clickable="true"
 					thumbSize="lg"

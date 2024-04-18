@@ -1,38 +1,35 @@
 'use strict';
 
 const cloudUtils = require('common-cloud-utils');
+const uniIdCommon = require('uni-id-common');
 
 exports.main = async (event, context) => {
+	const uniId = uniIdCommon.createInstance({
+		context,
+	});
 	// token验证
-	const verify = await cloudUtils.jwt.verifyToken(event.token);
-	if (verify.code !== 0) {
+	const verify = await uniId.checkToken(event.uniIdToken);
+	if (verify.errCode) {
 		return verify;
 	}
 	const db = await uniCloud.databaseForJQL({
 		event,
 		context,
 	});
-	const { openid } = verify.data;
+	const { uid } = verify;
 	const articleCollection = await db.collection('article');
-	const userCollection = await db.collection('user');
 	//event为客户端上传的参数
 	const params = {
 		title: '',
 		content: '',
-		author_id: '',
-		avatar_url: '',
+		author_id: uid,
+		avatar: '',
 	};
 	for (const key in params) {
 		if (event.hasOwnProperty(key)) {
 			params[key] = event[key];
 		}
 	}
-
-	// 设置作者
-	const author = await userCollection.where({ openid }).get({
-		getOne: true,
-	});
-	params.author_id = author.data._id;
 
 	try {
 		let res = await articleCollection.add(params);

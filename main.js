@@ -1,9 +1,13 @@
 import constants from './constants/index';
 
-// 需要重新登录的错误码
-const ERROR_CODE_LOGIN_WHITELIST = [401000, 401001, 401002, 401003];
+// 需要跳转到登录页的错误码
+const ERROR_CODE_SHOULD_GO_LOGIN = [];
+// 需要将全局登录状态设置为 未登录 的状态码
+const ERROR_CODE_SHOULD_SET_LOGOUT_GLOBALLY = ['uni-id-token-expired'];
 // 不需要全局 toast 的错误码
-const ERROR_CODE_TOAST_BLACKLIST = [];
+const ERROR_CODE_NOT_TOAST_GLOBALLY = [];
+// 需要清除 token 的错误码
+const ERROR_CODE_SHOULD_CLEAR_TOKEN = ['uni-id-token-expired'];
 
 // callFunction 拦截器
 uniCloud.addInterceptor('callFunction', {
@@ -11,31 +15,43 @@ uniCloud.addInterceptor('callFunction', {
 		if (!options.data) {
 			options.data = {};
 		}
-		options.data.token = uni.getStorageSync(constants.token.TOKEN) || '';
 	},
 	async success(res) {
 		if (!res.result) {
 			return;
 		}
-		if (!ERROR_CODE_TOAST_BLACKLIST.includes(res.result.code)) {
-			if (res.result.message) {
-				uni.showToast({
-					title: res.result.message,
+		if (
+			res.result.errCode &&
+			!ERROR_CODE_NOT_TOAST_GLOBALLY.includes(res.result.errCode)
+		) {
+			if (res.result.errMsg) {
+				await uni.showToast({
+					title: res.result.errMsg,
 					icon: 'none',
 				});
 			}
 		}
-		if (ERROR_CODE_LOGIN_WHITELIST.includes(res.result.code)) {
+		if (ERROR_CODE_SHOULD_CLEAR_TOKEN.includes(res.result.errCode)) {
 			// 清除 token
-			await uni.removeStorage({
-				key: constants.token.TOKEN,
-			});
-			// 需要重新登录
-			store.commit('user/UPDATE_IS_LOGINED', false);
+			uni.removeStorageSync(constants.token.TOKEN);
+			uni.removeStorageSync(constants.token.TOKEN_EXPIRED);
+		}
+		if (ERROR_CODE_SHOULD_SET_LOGOUT_GLOBALLY.includes(res.result.errCode)) {
+			await store.commit('user/UPDATE_IS_LOGINED', false);
+		}
+		if (ERROR_CODE_SHOULD_GO_LOGIN.includes(res.result.errCode)) {
+			// 自动跳转到登录页
 			await uni.switchTab({
 				url: '/pages/user/user',
 			});
 		}
+	},
+	fail(res) {
+		// 云函数 throw 抛出的错误
+		uni.showToast({
+			title: res.message,
+			icon: 'none',
+		});
 	},
 });
 

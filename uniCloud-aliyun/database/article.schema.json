@@ -26,10 +26,10 @@
 		},
 		"author_id": {
 			"bsonType": "string",
-			"foreignKey": "user._id",
+			"foreignKey": "uni-id-users._id",
 			"description": "作者"
 		},
-		"avatar_url": {
+		"avatar": {
 			"bsonType": "string",
 			"description": "缩略图"
 		},

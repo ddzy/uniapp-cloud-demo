@@ -17,8 +17,12 @@ exports.main = async (event, context) => {
 		...event,
 	};
 
-	const foundArticlesTemp = await articleCollection.orderBy(params.orderBy).getTemp();
-	let foundArticles = await db.collection(foundArticlesTemp, 'user').get();
+	const foundArticlesTemp = await articleCollection
+		.orderBy(params.orderBy)
+		.getTemp();
+	let foundArticles = await db
+		.collection(foundArticlesTemp, 'uni-id-users')
+		.get();
 	foundArticles = foundArticles.data.map((v) => {
 		return {
 			...v,

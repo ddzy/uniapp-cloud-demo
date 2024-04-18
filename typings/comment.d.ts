@@ -6,6 +6,6 @@ export interface IComment {
 	article_id: IArticle;
 	author_id: IUser;
 	content: string;
-	avatar_url: string;
+	avatar: string;
 	created_time: number;
 }

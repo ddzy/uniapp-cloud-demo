@@ -1,22 +1,22 @@
 <template>
 	<view class="container">
 		<uni-forms ref="form" :rules="rules" :model="ruleForm" label-position="top">
-			<view class="form-avatar_url">
-				<uni-forms-item label="" name="avatar_url">
+			<view class="form-avatar">
+				<uni-forms-item label="" name="avatar">
 					<button
-						class="form-avatar_url-btn"
+						class="form-avatar-btn"
 						type="default"
 						open-type="chooseAvatar"
 						@chooseavatar="chooseAvatar"
 					>
 						<image
-							:src="ruleForm.avatar_url"
+							:src="ruleForm.avatar"
 							mode=""
-							class="form-avatar_url-image"
+							class="form-avatar-image"
 						></image>
 						<uni-icons
 							type="camera-filled"
-							class="form-avatar_url-icon"
+							class="form-avatar-icon"
 							color="#007aff"
 							:size="24"
 						></uni-icons>
@@ -67,16 +67,16 @@
 </template>
 
 <script lang="ts">
-import { IUser } from '../../typings/index';
+import { IUser, IUniCommonFile } from '../../typings/index';
 
 interface IRuleForm
-	extends Pick<IUser, 'avatar_url' | 'nickname' | 'gender' | 'brief'> {}
+	extends Pick<IUser, 'avatar' | 'nickname' | 'gender' | 'brief'> {}
 
 function genDefaultRuleForm(): IRuleForm {
 	return {
-		avatar_url: '',
+		avatar: '',
 		nickname: '',
-		gender: 'male',
+		gender: 0,
 		brief: '',
 	};
 }
@@ -109,11 +109,11 @@ export default {
 			},
 			genders: [
 				{
-					value: 'male',
+					value: 1,
 					text: '男♂',
 				},
 				{
-					value: 'female',
+					value: 2,
 					text: '女♀',
 				},
 			],
@@ -139,7 +139,7 @@ export default {
 				cloudPath: path.substring(path.lastIndexOf('/') + 1),
 				filePath: path,
 			});
-			this.ruleForm.avatar_url = res.fileID;
+			this.ruleForm.avatar = res.fileID;
 		},
 		async submit() {
 			uni.showLoading({
@@ -178,13 +178,13 @@ export default {
 
 .container {
 	padding: 32px;
-	.form-avatar_url {
+	.form-avatar {
 		:deep(.uni-forms-item__label) {
 			display: none;
 		}
 		:deep(.uni-forms-item__content) {
 			text-align: center;
-			.form-avatar_url-btn {
+			.form-avatar-btn {
 				position: relative;
 				display: inline-block;
 				overflow: visible;
@@ -194,14 +194,14 @@ export default {
 					border: none;
 				}
 			}
-			.form-avatar_url-image {
+			.form-avatar-image {
 				display: block;
 				width: 80px;
 				height: 80px;
 				border-radius: 50%;
 				background-color: #f7f8f9;
 			}
-			.form-avatar_url-icon {
+			.form-avatar-icon {
 				position: absolute;
 				right: -12px;
 				bottom: -12px;

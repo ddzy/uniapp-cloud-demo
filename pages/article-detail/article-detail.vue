@@ -46,7 +46,7 @@
 					<uni-list-item
 						:title="v.author_id.nickname"
 						:note="v.content"
-						:thumb="v.author_id.avatar_url"
+						:thumb="v.author_id.avatar"
 						:right-text="v.created_time"
 						thumb-size="sm"
 						clickable
@@ -74,7 +74,7 @@
 										thumb-size="sm"
 										clickable
 										:key="vv._id"
-										:thumb="vv.from.avatar_url"
+										:thumb="vv.from.avatar"
 										:right-text="vv.created_time"
 									>
 										<template #body>
@@ -201,13 +201,13 @@ export default {
 			return `最近更新于：${time}`;
 		},
 		computedAvatarUrl() {
-			return (this.articleInfo && this.articleInfo.avatar_url) || '';
+			return (this.articleInfo && this.articleInfo.avatar) || '';
 		},
 		computedAuthorName() {
 			return this.articleInfo?.author_id?.nickname ?? '';
 		},
 		computedAuthorAvatar() {
-			return this.articleInfo?.author_id?.avatar_url ?? '';
+			return this.articleInfo?.author_id?.avatar ?? '';
 		},
 		computedCurrentUserId() {
 			return this.$store.state.user.userInfo._id || '';

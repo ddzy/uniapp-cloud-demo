@@ -1,32 +1,32 @@
 'use strict';
 
-const cloudUtils = require('common-cloud-utils');
+const uniIdCommon = require('uni-id-common');
 
 exports.main = async (event, context) => {
 	// event为客户端上传的参数;
-	// token验证;
-	const verify = await cloudUtils.jwt.verifyToken(event.token);
-	if (verify.code !== 0) {
+	// uni-id token验证
+	const uniId = await uniIdCommon.createInstance({
+		context,
+	});
+	const verify = await uniId.checkToken(event.uniIdToken);
+	if (verify.errCode) {
 		return verify;
 	}
-
-	const { openid } = verify.data;
+	const { uid } = verify;
 	const db = uniCloud.databaseForJQL({
 		event,
 		context,
 	});
-	const foundUser = await db.collection('user').where({ openid }).get({
+	const userCollection = await db.collection('uni-id-users');
+
+	const foundUser = await userCollection.doc(uid).get({
 		getOne: true,
 	});
 
-	if (!foundUser.data) {
-		return {
-			code: 401003,
-			message: cloudUtils.errorCode[401003],
-		};
-	}
 	return {
 		code: 0,
+		errCode: 0,
+		errMsg: '',
 		data: foundUser.data,
 	};
 };

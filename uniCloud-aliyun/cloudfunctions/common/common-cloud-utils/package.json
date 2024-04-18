@@ -10,6 +10,10 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"jsonwebtoken": "^9.0.2"
+		"jsonwebtoken": "^9.0.2",
+		"lodash": "^4.17.21"
+	},
+	"devDependencies": {
+		"@types/lodash": "^4.17.0"
 	}
 }

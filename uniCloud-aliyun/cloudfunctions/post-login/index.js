@@ -1,9 +1,13 @@
 'use strict';
 
 const cloudUtils = require('common-cloud-utils');
+const uniIdCommon = require('uni-id-common');
 
 exports.main = async (event, context) => {
 	//event为客户端上传的参数
+	const uniId = await uniIdCommon.createInstance({
+		context,
+	});
 	const res = await uniCloud.request({
 		url: `https://api.weixin.qq.com/sns/jscode2session`,
 		method: 'GET',
@@ -14,57 +18,69 @@ exports.main = async (event, context) => {
 			grant_type: 'authorization_code',
 		},
 	});
-	const { openid } = res.data;
-	const db = uniCloud.databaseForJQL({
-		event,
-		context,
-	});
+	const { openid, session_key } = res.data;
+	// 此处使用 databaseForJQL 会提示没有权限
+	const db = uniCloud.database();
+	const userCollection = await db.collection('uni-id-users');
 
 	// 查询用户
-	const foundExistingUsers = await db
-		.collection('user')
+	const foundExistingUsers = await userCollection
 		.where({
-			openid,
+			wx_openid: {
+				mp: openid,
+			},
 		})
-		.get({
-			getOne: true,
-		});
+		.get();
 	// 如果用户已经存在（以 openid 作为查询标识）
-	if (foundExistingUsers && foundExistingUsers.data) {
-		// 生成 token
-		const token = await cloudUtils.jwt.generateToken({
-			openid,
-			userid: foundExistingUsers.data._id,
+	if (foundExistingUsers.data && foundExistingUsers.data.length) {
+		// uni-id 生成 token
+		const { token, tokenExpired } = await uniId.createToken({
+			uid: foundExistingUsers.data[0]._id,
+			role: ['admin'],
+			permission: [],
 		});
 
 		return {
 			code: 0,
+			errCode: 0,
+			errMsg: '',
 			data: {
-				user: foundExistingUsers.data,
+				user: foundExistingUsers.data[0],
 				token,
+				tokenExpired,
 			},
 		};
 	} else {
 		// 如果用户不存在，那么创建新用户
-		const createdUser = await db.collection('user').add({
-			openid,
-			avatar_url: event.avatar_url,
+		const createdUser = await userCollection.add({
+			avatar: event.avatar,
 			nickname: event.nickname,
+			username: cloudUtils.lodash.uniqueId('游客'),
+			wx_openid: {
+				mp: openid,
+			},
+			third_party: {
+				mp_weixin: {
+					session_key,
+				},
+			},
 		});
-		let foundUser = await db.collection('user').doc(createdUser.id).get({
-			getOne: true,
-		});
-		// 生成 token
-		const token = await cloudUtils.jwt.generateToken({
-			openid,
-			userid: foundUser.data._id,
+		let foundUser = await userCollection.doc(createdUser.id).get();
+		// uni-id 生成 token
+		const { token, tokenExpired } = await uniId.createToken({
+			uid: foundUser.data[0]._id,
+			role: ['admin'],
+			permission: [],
 		});
 
 		return {
 			code: 0,
+			errCode: 0,
+			errMsg: '',
 			data: {
-				user: foundUser.data,
+				user: foundUser.data[0],
 				token,
+				tokenExpired,
 			},
 		};
 	}

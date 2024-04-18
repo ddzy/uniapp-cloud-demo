@@ -5,7 +5,7 @@ export interface IArticle {
 	title: string;
 	content: string;
 	description: string;
-	avatar_url: string;
+	avatar: string;
 	author_id: IUser;
 	created_time: number;
 	modified_time: number;

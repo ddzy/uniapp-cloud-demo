@@ -30,7 +30,7 @@
 			"bsonType": "string",
 			"description": "评论内容"
 		},
-		"avatar_url": {
+		"avatar": {
 			"bsonType": "string",
 			"description": "图片评论"
 		},

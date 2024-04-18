@@ -1,0 +1,16 @@
+{
+	"tokenSecret": "__jwt_secret__",
+	"tokenExpiresIn": 7200,
+	"tokenExpiresThreshold": 3600,
+	"userRegisterDefaultRole": ["user"],
+	"mp-weixin": {
+		"tokenExpiresIn": 7200,
+		"tokenExpiresThreshold": 3600,
+		"oauth": {
+			"weixin": {
+				"appid": "wx28a5471917096b6d",
+				"appsecret": "9a652052457ae7dd7287cc3053934c61"
+			}
+		}
+	}
+}

@@ -23,7 +23,7 @@ exports.main = async (event, context) => {
 		.getTemp();
 
 	const comments = [];
-	let res = await db.collection(commentCollection, 'user').get();
+	let res = await db.collection(commentCollection, 'uni-id-users').get();
 	for (let comment of res.data) {
 		comments.push({
 			...comment,

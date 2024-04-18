@@ -3,11 +3,6 @@
 const cloudUtils = require('common-cloud-utils');
 
 exports.main = async (event, context) => {
-	//event为客户端上传的参数
-	const verify = await cloudUtils.jwt.verifyToken(event.token);
-	if (verify.code !== 0) {
-		return verify;
-	}
 	const params = {
 		limit: event.limit || 15,
 		skip: event.skip || 0,
@@ -27,7 +22,7 @@ exports.main = async (event, context) => {
 		.skip(params.skip)
 		.limit(params.limit)
 		.getTemp();
-	let res = await db.collection(replyCollection, 'user').get();
+	let res = await db.collection(replyCollection, 'uni-id-users').get();
 	res = res.data.map((v) => {
 		return {
 			...v,

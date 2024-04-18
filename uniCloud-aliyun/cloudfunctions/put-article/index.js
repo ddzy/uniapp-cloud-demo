@@ -1,15 +1,18 @@
 'use strict';
 
 const cloudUtils = require('common-cloud-utils');
+const uniIdCommon = require('uni-id-common');
 
 exports.main = async (event, context) => {
-	// token验证
-	const verify = await cloudUtils.jwt.verifyToken(event.token);
-	if (verify.code !== 0) {
+	const uniId = await uniIdCommon.createInstance({
+		context,
+	});
+	const verify = await uniId.checkToken(event.uniIdToken);
+	if (verify.errCode) {
 		return verify;
 	}
 
-	const { openid, userid } = verify.data;
+	const { uid } = verify;
 	const db = await uniCloud.databaseForJQL({
 		event,
 		context,
@@ -20,7 +23,7 @@ exports.main = async (event, context) => {
 	const res = await articleCollection
 		.where({
 			_id: event._id,
-			author_id: userid,
+			author_id: uid,
 		})
 		.update(event.params);
 

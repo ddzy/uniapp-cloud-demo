@@ -23,8 +23,8 @@
 					:maxlength="-1"
 				/>
 			</uni-forms-item>
-			<uni-forms-item label="缩略图" name="avatar_url">
-				<view class="form-avatar_url">
+			<uni-forms-item label="缩略图" name="avatar">
+				<view class="form-avatar">
 					<uni-file-picker
 						v-model="avatarUrlEcho"
 						title=""
@@ -61,7 +61,7 @@ function genDefaultRuleForm() {
 	return {
 		title: '',
 		content: '',
-		avatar_url: '',
+		avatar: '',
 	};
 }
 
@@ -130,7 +130,7 @@ export default {
 			});
 			if (res && res.result && res.result.data) {
 				utils.mergeObj(this.ruleForm, res.result.data);
-				this.avatarUrlEcho = utils.echoUniFilePicker(this.ruleForm.avatar_url);
+				this.avatarUrlEcho = utils.echoUniFilePicker(this.ruleForm.avatar);
 			}
 		},
 		async uploadAvatar(e: any) {
@@ -139,10 +139,10 @@ export default {
 				cloudPath: name,
 				filePath: path,
 			});
-			this.ruleForm.avatar_url = res.fileID;
+			this.ruleForm.avatar = res.fileID;
 		},
 		deleteAvatar() {
-			this.ruleForm.avatar_url = '';
+			this.ruleForm.avatar = '';
 		},
 		async submit() {
 			const form: any = this.$refs.form;
@@ -190,7 +190,7 @@ export default {
 
 <style lang="scss">
 .form {
-	.form-avatar_url {
+	.form-avatar {
 		padding: 10px;
 	}
 }

@@ -3,11 +3,6 @@
 const cloudUtils = require('common-cloud-utils');
 
 exports.main = async (event, context) => {
-	//event为客户端上传的参数
-	const verify = await cloudUtils.jwt.verifyToken(event.token);
-	if (verify.code !== 0) {
-		return verify;
-	}
 	const params = {
 		comment_id: event.comment_id || '',
 	};

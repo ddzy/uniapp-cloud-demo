@@ -5,7 +5,7 @@
 				<uni-list-item
 					:title="computedIsLogined ? computedUserInfo.nickname : '立即登录'"
 					:note="computedIsLogined ? computedUserInfo.brief : ''"
-					:thumb="computedUserInfo.avatar_url"
+					:thumb="computedUserInfo.avatar"
 					:rightText="computedIsLogined ? '编辑个人资料' : ''"
 					:extra-icon="{ color: '#f0ad4e', size: '30', type: 'info-filled' }"
 					:showExtraIcon="true"
@@ -146,7 +146,7 @@ export default {
 					name: 'post-login',
 					data: {
 						code,
-						avatar_url: userInfo.avatarUrl,
+						avatar: userInfo.avatarUrl,
 						nickname: userInfo.nickName,
 					},
 				});
@@ -155,6 +155,10 @@ export default {
 					this.$store.commit('user/UPDATE_IS_LOGINED', true);
 					// 登录成功，存储token
 					uni.setStorageSync(constants.token.TOKEN, res.result.data.token);
+					uni.setStorageSync(
+						constants.token.TOKEN_EXPIRED,
+						res.result.data.tokenExpired
+					);
 				}
 
 				uni.hideLoading();
@@ -170,7 +174,8 @@ export default {
 					name: 'post-logout',
 					data: {},
 				});
-				console.log('res :>> ', res);
+				if (res.errCode === 0) {
+				}
 			}
 		},
 	},
