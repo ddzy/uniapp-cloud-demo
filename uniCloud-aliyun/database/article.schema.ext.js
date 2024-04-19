@@ -7,7 +7,7 @@ module.exports = {
 					throw new Error('缺少`content`字段');
 				}
 				// 每次创建文章时，自动生成文章描述
-				v.description = v.content.slice(0, 60);
+				v.brief = v.content.slice(0, 60);
 			}
 		},
 		async beforeUpdate(
@@ -22,7 +22,7 @@ module.exports = {
 			) {
 				if (updateData.content) {
 					// 每次更新文章时，同样根据文章的内容生成描述
-					updateData.description = updateData.content.slice(0, 60);
+					updateData.brief = updateData.content.slice(0, 60);
 				}
 				// 更新修改时间
 				updateData.modified_time = Date.now();

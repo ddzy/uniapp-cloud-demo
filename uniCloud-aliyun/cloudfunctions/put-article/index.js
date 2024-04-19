@@ -13,10 +13,7 @@ exports.main = async (event, context) => {
 	}
 
 	const { uid } = verify;
-	const db = await uniCloud.databaseForJQL({
-		event,
-		context,
-	});
+	const db = await uniCloud.database();
 	const articleCollection = await db.collection('article');
 
 	// 只允许用户修改自己的文章
@@ -25,10 +22,16 @@ exports.main = async (event, context) => {
 			_id: event._id,
 			author_id: uid,
 		})
-		.update(event.params);
+		.update({
+			...event.params,
+			avatar_file: event.params.avatar_file
+				? event.params.avatar_file
+				: db.command.remove(),
+		});
 
 	return {
-		code: 0,
+		errCode: 0,
+		errMsg: '',
 		data: res,
 	};
 };

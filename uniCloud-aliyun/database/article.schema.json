@@ -20,9 +20,9 @@
 			"bsonType": "string",
 			"description": "正文"
 		},
-		"description": {
+		"brief": {
 			"bsonType": "string",
-			"description": "简短描述"
+			"description": "简介（自动生成）"
 		},
 		"author_id": {
 			"bsonType": "string",
@@ -31,6 +31,11 @@
 		},
 		"avatar": {
 			"bsonType": "string",
+			"title": "缩略图地址",
+			"description": "缩略图地址"
+		},
+		"avatar_file": {
+			"bsonType": "file",
 			"description": "缩略图"
 		},
 		"created_time": {

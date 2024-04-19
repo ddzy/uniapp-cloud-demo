@@ -20,12 +20,12 @@
 		"from": {
 			"bsonType": "string",
 			"description": "回复人",
-			"foreignKey": "user._id"
+			"foreignKey": "uni-id-users._id"
 		},
 		"to": {
 			"bsonType": "string",
 			"description": "回复谁",
-			"foreignKey": "user._id"
+			"foreignKey": "uni-id-users._id"
 		},
 		"comment_id": {
 			"bsonType": "string",

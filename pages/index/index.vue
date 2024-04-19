@@ -6,7 +6,7 @@
 					v-for="v in articles"
 					:key="v._id"
 					:title="v.title"
-					:note="v.description"
+					:note="v.brief"
 					:thumb="v.avatar"
 					:right-text="formatTime(v.modified_time)"
 					:clickable="true"

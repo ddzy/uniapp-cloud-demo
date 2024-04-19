@@ -30,7 +30,8 @@ exports.main = async (event, context) => {
 			: null;
 
 	return {
-		code: 0,
+		errCode: 0,
+		errMsg: '',
 		data: res,
 	};
 };

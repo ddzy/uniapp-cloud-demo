@@ -23,18 +23,18 @@
 					:maxlength="-1"
 				/>
 			</uni-forms-item>
-			<uni-forms-item label="缩略图" name="avatar">
+			<uni-forms-item label="缩略图" name="avatar_file">
 				<view class="form-avatar">
 					<uni-file-picker
-						v-model="avatarUrlEcho"
+						v-model="ruleForm.avatar_file"
 						title=""
 						limit="1"
 						file-mediatype="image"
 						return-type="object"
-						:auto-upload="false"
+						:auto-upload="true"
 						:return-type="'object'"
-						@select="uploadAvatar"
 						@delete="deleteAvatar"
+						@success="uploadAvatarSuccess"
 					></uni-file-picker>
 				</view>
 			</uni-forms-item>
@@ -56,12 +56,17 @@
 
 <script lang="ts">
 import * as utils from '../../utils/index';
+import { IArticle, IUniFilePickerEvent } from '../../typings/index';
 
-function genDefaultRuleForm() {
+interface IRuleForm
+	extends Pick<IArticle, 'title' | 'content' | 'avatar' | 'avatar_file'> {}
+
+function genDefaultRuleForm(): IRuleForm {
 	return {
 		title: '',
 		content: '',
 		avatar: '',
+		avatar_file: undefined,
 	};
 }
 
@@ -92,7 +97,6 @@ export default {
 				},
 			},
 			articleId: '',
-			avatarUrlEcho: {},
 			pattern: {
 				icon: 'checkmarkempty',
 			},
@@ -103,7 +107,7 @@ export default {
 			return !!this.articleId;
 		},
 	},
-	onLoad(option) {
+	onLoad(option: { articleId: string }) {
 		this.articleId = option.articleId || '';
 		if (this.articleId) {
 			this.fetchArticle();
@@ -122,45 +126,45 @@ export default {
 			return result;
 		},
 		async fetchArticle() {
-			const res = await uniCloud.callFunction({
+			const {
+				result: { errCode, data },
+			} = await uniCloud.callFunction({
 				name: 'get-article',
 				data: {
 					_id: this.articleId,
 				},
 			});
-			if (res && res.result && res.result.data) {
-				utils.mergeObj(this.ruleForm, res.result.data);
-				this.avatarUrlEcho = utils.echoUniFilePicker(this.ruleForm.avatar);
+			if (errCode === 0) {
+				this.$lodash.forIn(this.ruleForm, (value, key) => {
+					if (this.$lodash.has(data, key) && data[key]) {
+						this.$lodash.set(this.ruleForm, key, data[key]);
+					}
+				});
 			}
-		},
-		async uploadAvatar(e: any) {
-			const { path, name } = e.tempFiles[0];
-			const res = await uniCloud.uploadFile({
-				cloudPath: name,
-				filePath: path,
-			});
-			this.ruleForm.avatar = res.fileID;
 		},
 		deleteAvatar() {
 			this.ruleForm.avatar = '';
 		},
+		uploadAvatarSuccess(e: IUniFilePickerEvent) {
+			this.ruleForm.avatar = e.tempFilePaths[0];
+		},
 		async submit() {
 			const form: any = this.$refs.form;
 			try {
-				const params = await form.validate();
+				await form.validate();
 				this.computedIsEdit
-					? this.submitForEdit(params)
-					: this.submitForCreate(params);
+					? this.submitForEdit(this.ruleForm)
+					: this.submitForCreate(this.ruleForm);
 			} catch (e) {
 				//TODO handle the exception
 			}
 		},
-		async submitForCreate(params) {
+		async submitForCreate(params: IRuleForm) {
 			const res = await uniCloud.callFunction({
 				name: 'post-article',
 				data: params,
 			});
-			if (res && res.result && res.result.code === 0) {
+			if (res && res.result && res.result.errCode === 0) {
 				uni.showToast({
 					icon: 'success',
 					title: '创建成功',
@@ -168,15 +172,17 @@ export default {
 				uni.navigateBack();
 			}
 		},
-		async submitForEdit(params) {
-			const res = await uniCloud.callFunction({
+		async submitForEdit(params: IRuleForm) {
+			const {
+				result: { errCode },
+			} = await uniCloud.callFunction({
 				name: 'put-article',
 				data: {
 					_id: this.articleId,
 					params,
 				},
 			});
-			if (res && res.result && res.result.code === 0) {
+			if (errCode === 0) {
 				uni.showToast({
 					icon: 'success',
 					title: '修改成功',

@@ -62,6 +62,7 @@ uni.addInterceptor('request', {
 	complete() {},
 });
 
+import * as lodash from 'lodash';
 import dayjs from 'dayjs';
 import dayjsRelativeTime from 'dayjs/plugin/relativeTime';
 import dayjsUpdateLocale from 'dayjs/plugin/updateLocale';
@@ -78,6 +79,7 @@ import Vue from 'vue';
 import './uni.promisify.adaptor';
 Vue.config.productionTip = false;
 Vue.prototype.$dayjs = dayjs;
+Vue.prototype.$lodash = lodash;
 App.mpType = 'app';
 const app = new Vue({
 	...App,
@@ -92,6 +94,7 @@ export function createApp() {
 	const app = createSSRApp(App);
 	app.config.globalProperties.$store = store;
 	app.config.globalProperties.$dayjs = dayjs;
+	app.config.globalProperties.$lodash = lodash;
 
 	return {
 		app,

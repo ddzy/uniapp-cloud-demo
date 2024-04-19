@@ -24,6 +24,7 @@ exports.main = async (event, context) => {
 		content: '',
 		author_id: uid,
 		avatar: '',
+		avatar_file: undefined,
 	};
 	for (const key in params) {
 		if (event.hasOwnProperty(key)) {
@@ -34,14 +35,15 @@ exports.main = async (event, context) => {
 	try {
 		let res = await articleCollection.add(params);
 		return {
-			code: 0,
+			errCode: 0,
+			errMsg: '',
 			data: res,
 		};
 	} catch (e) {
 		return {
-			code: 500000,
-			message: cloudUtils.errorCode[500000],
-			error: e,
+			errCode: 500000,
+			errMsg: cloudUtils.errorCode[500000],
+			data: e,
 		};
 	}
 };

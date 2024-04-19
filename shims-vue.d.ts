@@ -1,3 +1,4 @@
+import * as lodash from 'lodash';
 import * as dayjs from 'dayjs';
 import * as utils from './utils/index';
 import store from './store/store';
@@ -8,5 +9,6 @@ declare module '@vue/runtime-core' {
 		$utils: typeof utils;
 		$store: typeof store;
 		$dayjs: typeof dayjs;
+		$lodash: typeof lodash;
 	}
 }

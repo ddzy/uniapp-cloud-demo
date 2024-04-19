@@ -19,7 +19,7 @@
 		"author_id": {
 			"bsonType": "string",
 			"description": "评论人",
-			"foreignKey": "user._id"
+			"foreignKey": "uni-id-users._id"
 		},
 		"article_id": {
 			"bsonType": "string",

@@ -149,11 +149,25 @@
 				</view>
 			</view>
 		</view>
+		<view class="edit-section">
+			<uni-fab
+				:pop-menu="false"
+				:direction="'vertical'"
+				:horizontal="'right'"
+				:vertical="'bottom'"
+				:content="[]"
+				:popMenu="false"
+				:pattern="{
+					icon: 'compose',
+				}"
+				@fabClick="toOperatePage"
+			></uni-fab>
+		</view>
 	</view>
 </template>
 
 <script lang="ts">
-import { IComment, IReply, IUser } from '../../typings';
+import { IComment, IReply, IUser, IArticle } from '../../typings';
 
 interface ILocalComment extends IComment {}
 interface ILocalReply extends Omit<IReply, 'created_time'> {
@@ -164,7 +178,7 @@ export default {
 	data() {
 		return {
 			articleId: '',
-			articleInfo: undefined,
+			articleInfo: undefined as IArticle | undefined,
 			isFollowed: false,
 			inputValue: '',
 			isInputCommitting: false,
@@ -216,7 +230,7 @@ export default {
 			return this.isReply ? `回复 ${this.replyInfo.to.nickname}` : `理性评论`;
 		},
 	},
-	onLoad(options) {
+	onLoad(options: { articleId: string }) {
 		this.articleId = options.articleId || '';
 	},
 	onShow() {
@@ -234,13 +248,8 @@ export default {
 					_id: this.articleId,
 				},
 			});
-			if (res && res.result && res.result.code === 0) {
+			if (res && res.result.errCode === 0) {
 				this.articleInfo = res.result.data;
-				// 判断当前登录的用户是否是文章的作者
-				if (this.articleInfo.author_id._id === this.computedCurrentUserId) {
-				} else {
-					// 反之，显示【收藏文章】按钮
-				}
 			}
 			uni.hideLoading();
 		},
@@ -252,7 +261,7 @@ export default {
 					orderBy: 'created_time desc',
 				},
 			});
-			if (res.result && res.result.code === 0) {
+			if (res.result.errCode === 0) {
 				this.comments = res.result.data.map((v: ILocalComment) => {
 					return {
 						...v,
@@ -261,19 +270,23 @@ export default {
 				});
 			}
 		},
-		async replyLoad(data: ILocalReply[], ended: boolean, pagination) {
+		async replyLoad(data: ILocalReply[]) {
 			data.forEach((v) => {
 				v.created_time = this.$dayjs(v.created_time).fromNow();
+				// @ts-ignore
 				v.from = v.from[0];
+				// @ts-ignore
 				v.to = v.to[0];
 			});
 		},
 		async replyLoadMore(index: number) {
-			const dbs = this.$refs[`replyDBRef-${index}`][0];
+			const dbs = (this.$refs[`replyDBRef-${index}`] as Vue[])[0];
+			// @ts-ignore
 			dbs.loadMore();
 		},
 		async replyAppend(row: ILocalReply) {
 			// 如果列表本来没有数据，那么创建评论后手动获取一次初始数据
+			// @ts-ignore
 			const dbs = this.$refs[`replyDBRef-${this.replyInfo.commentIndex}`][0];
 			if (!dbs.dataList.length) {
 				dbs.loadData();
@@ -319,7 +332,7 @@ export default {
 						content: this.inputValue,
 					},
 				});
-				if (res.result && res.result.code === 0) {
+				if (res.result.errCode === 0) {
 					uni.showToast({
 						icon: 'none',
 						title: '评论成功',
@@ -344,7 +357,7 @@ export default {
 						content: this.inputValue,
 					},
 				});
-				if (res.result && res.result.code === 0) {
+				if (res.result.errCode === 0) {
 					uni.showToast({
 						icon: 'none',
 						title: '回复成功',
@@ -503,6 +516,12 @@ export default {
 				font-size: 14px !important;
 			}
 		}
+	}
+}
+
+.edit-section {
+	:deep(.uni-fab__circle) {
+		bottom: 60px;
 	}
 }
 </style>
