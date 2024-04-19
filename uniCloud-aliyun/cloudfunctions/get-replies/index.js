@@ -6,7 +6,7 @@ exports.main = async (event, context) => {
 	const params = {
 		limit: event.limit || 15,
 		skip: event.skip || 0,
-		orderBy: event.orderBy || 'created_time asc',
+		orderBy: event.orderBy || 'create_date asc',
 		comment_id: event.comment_id || '',
 	};
 	const db = await uniCloud.databaseForJQL({

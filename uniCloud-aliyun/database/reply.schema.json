@@ -40,7 +40,11 @@
 			"bsonType": "string",
 			"description": "回复的图片内容"
 		},
-		"created_time": {
+		"avatar_file": {
+			"bsonType": "file",
+			"description": "图片的文件对象"
+		},
+		"create_date": {
 			"bsonType": "timestamp",
 			"description": "回复时间",
 			"forceDefaultValue": {

@@ -7,7 +7,7 @@ exports.main = async (event, context) => {
 	const params = {
 		limit: event.limit || 15,
 		skip: event.skip || 0,
-		orderBy: event.orderBy || 'created_time asc',
+		orderBy: event.orderBy || 'create_date asc',
 		article_id: event.article_id || '',
 	};
 	const db = await uniCloud.databaseForJQL({
@@ -33,7 +33,8 @@ exports.main = async (event, context) => {
 
 	//返回数据给客户端
 	return {
-		code: 0,
+		errCode: 0,
+		errMsg: '',
 		data: comments,
 	};
 };

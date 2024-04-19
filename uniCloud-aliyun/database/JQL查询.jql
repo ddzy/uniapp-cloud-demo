@@ -15,3 +15,5 @@
 // }).remove();
 
 // db.collection('comment').where({}).remove();
+
+db.collection('uni-id-users').get()

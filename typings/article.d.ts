@@ -9,6 +9,6 @@ export interface IArticle {
 	avatar: string;
 	avatar_file?: IUniCommonFile;
 	author_id: IUser;
-	created_time: number;
-	modified_time: number;
+	create_date: number;
+	update_date: number;
 }

@@ -460,6 +460,20 @@
 		"valid_token_date": {
 			"bsonType": "timestamp",
 			"description": "uni-id refreshToken时会校验，如果创建token时间在此时间点之前，则拒绝下发新token，返回token失效错误码"
+		},
+		"create_date": {
+			"bsonType": "timestamp",
+			"description": "注册时间",
+			"forceDefaultValue": {
+				"$env": "now"
+			}
+		},
+		"update_date": {
+			"bsonType": "timestamp",
+			"description": "更新时间",
+			"forceDefaultValue": {
+				"$env": "now"
+			}
 		}
 	},
 	"version": "1.0.3"

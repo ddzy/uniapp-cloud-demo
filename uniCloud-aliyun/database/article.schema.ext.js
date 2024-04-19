@@ -25,7 +25,7 @@ module.exports = {
 					updateData.brief = updateData.content.slice(0, 60);
 				}
 				// 更新修改时间
-				updateData.modified_time = Date.now();
+				updateData.update_date = Date.now();
 			}
 		},
 	},

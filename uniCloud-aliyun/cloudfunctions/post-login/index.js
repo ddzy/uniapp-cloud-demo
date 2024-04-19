@@ -20,7 +20,7 @@ exports.main = async (event, context) => {
 	});
 	const { openid, session_key } = res.data;
 	// 此处使用 databaseForJQL 会提示没有权限
-	const db = uniCloud.database();
+	const db = await uniCloud.database();
 	const userCollection = await db.collection('uni-id-users');
 
 	// 查询用户
@@ -64,6 +64,8 @@ exports.main = async (event, context) => {
 					session_key,
 				},
 			},
+			create_date: Date.now(),
+			update_date: Date.now(),
 		});
 		let foundUser = await userCollection.doc(createdUser.id).get();
 		// uni-id 生成 token

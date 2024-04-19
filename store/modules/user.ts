@@ -15,8 +15,8 @@ function genDefaultUserInfo(): IUser {
 		avatar: '',
 		gender: 0,
 		brief: '',
-		created_time: 0,
-		modified_time: 0,
+		create_date: 0,
+		update_date: 0,
 	};
 }
 

@@ -7,5 +7,5 @@ export interface IComment {
 	author_id: IUser;
 	content: string;
 	avatar: string;
-	created_time: number;
+	create_date: number;
 }

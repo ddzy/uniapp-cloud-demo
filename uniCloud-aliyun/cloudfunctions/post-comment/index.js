@@ -6,7 +6,7 @@ const uniIdCommon = require('uni-id-common');
 exports.main = async (event, context) => {
 	const uniId = await uniIdCommon.createInstance({
 		context,
-	})
+	});
 	const verify = await uniId.checkToken(event.uniIdToken);
 	if (verify.errCode) {
 		return verify;
@@ -19,22 +19,16 @@ exports.main = async (event, context) => {
 	const commentCollection = await db.collection('comment');
 	const params = {
 		author_id: uid,
-		article_id: '',
-		content: '',
-		avatar: '',
+		article_id: event.article_id || '',
+		content: event.content || '',
 	};
-
-	for (let key in params) {
-		if (event.hasOwnProperty(key)) {
-			params[key] = event[key];
-		}
-	}
 
 	const res = await commentCollection.add(params);
 
 	//返回数据给客户端
 	return {
-		code: 0,
+		errCode: 0,
+		errMsg: '',
 		data: res,
 	};
 };

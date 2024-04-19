@@ -8,5 +8,5 @@ export interface IReply {
 	comment_id: IComment;
 	content: string;
 	avatar: string;
-	created_time: number;
+	create_date: number;
 }

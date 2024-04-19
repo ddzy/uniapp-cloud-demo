@@ -34,7 +34,11 @@
 			"bsonType": "string",
 			"description": "图片评论"
 		},
-		"created_time": {
+		"avatar_file": {
+			"bsonType": "file",
+			"description": "图片原始文件对象"
+		},
+		"create_date": {
 			"bsonType": "timestamp",
 			"description": "创建时间",
 			"forceDefaultValue": {

@@ -8,7 +8,7 @@
 					:title="v.title"
 					:note="v.brief"
 					:thumb="v.avatar"
-					:right-text="formatTime(v.modified_time)"
+					:right-text="formatTime(v.update_date)"
 					:clickable="true"
 					thumbSize="lg"
 					@click="toDetailPage(v)"
@@ -37,7 +37,7 @@ export default {
 			queryParams: {
 				limit: 15,
 				skip: 0,
-				orderBy: 'modified_time desc,created_time desc',
+				orderBy: 'update_date desc,create_date desc',
 			},
 			articles: [] as IArticle[],
 		};

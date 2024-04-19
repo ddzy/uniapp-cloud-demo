@@ -8,7 +8,7 @@ export interface IUser {
 	avatar_file: IUniCommonFile;
 	gender: IUserGender;
 	brief: string;
-	created_time: number;
-	modified_time: number;
+	create_date: number;
+	update_date: number;
 }
 export type IUserGender = 0 | 1 | 2;

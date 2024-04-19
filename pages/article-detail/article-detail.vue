@@ -47,7 +47,7 @@
 						:title="v.author_id.nickname"
 						:note="v.content"
 						:thumb="v.author_id.avatar"
-						:right-text="v.created_time"
+						:right-text="v.create_date"
 						thumb-size="sm"
 						clickable
 						@click="reply(v, v.author_id, i)"
@@ -55,9 +55,9 @@
 					</uni-list-item>
 					<unicloud-db
 						v-slot:default="{ data, error, pagination, hasMore, loading }"
-						collection="reply,user"
+						collection="reply,uni-id-users"
 						:ref="`replyDBRef-${i}`"
-						orderby="created_time desc"
+						orderby="create_date desc"
 						:where="`comment_id == '${v._id}'`"
 						:getone="false"
 						:getcount="true"
@@ -75,7 +75,7 @@
 										clickable
 										:key="vv._id"
 										:thumb="vv.from.avatar"
-										:right-text="vv.created_time"
+										:right-text="vv.create_date"
 									>
 										<template #body>
 											<view class="reply-body">
@@ -170,8 +170,8 @@
 import { IComment, IReply, IUser, IArticle } from '../../typings';
 
 interface ILocalComment extends IComment {}
-interface ILocalReply extends Omit<IReply, 'created_time'> {
-	created_time: string;
+interface ILocalReply extends Omit<IReply, 'create_date'> {
+	create_date: string;
 }
 
 export default {
@@ -205,13 +205,13 @@ export default {
 			return (this.articleInfo && this.articleInfo.content) || '';
 		},
 		computedCreatedTime() {
-			let time = this.$dayjs(this.articleInfo?.created_time).format(
+			let time = this.$dayjs(this.articleInfo?.create_date).format(
 				'YYYY-MM-DD HH:mm:ss'
 			);
 			return `发表于：${time}`;
 		},
 		computedModifiedTime() {
-			let time = this.$dayjs(this.articleInfo?.modified_time).fromNow();
+			let time = this.$dayjs(this.articleInfo?.update_date).fromNow();
 			return `最近更新于：${time}`;
 		},
 		computedAvatarUrl() {
@@ -258,21 +258,21 @@ export default {
 				name: 'get-comments',
 				data: {
 					article_id: this.articleId,
-					orderBy: 'created_time desc',
+					orderBy: 'create_date desc',
 				},
 			});
 			if (res.result.errCode === 0) {
 				this.comments = res.result.data.map((v: ILocalComment) => {
 					return {
 						...v,
-						created_time: this.$dayjs(v.created_time).fromNow(),
+						create_date: this.$dayjs(v.create_date).fromNow(),
 					};
 				});
 			}
 		},
 		async replyLoad(data: ILocalReply[]) {
 			data.forEach((v) => {
-				v.created_time = this.$dayjs(v.created_time).fromNow();
+				v.create_date = this.$dayjs(v.create_date).fromNow();
 				// @ts-ignore
 				v.from = v.from[0];
 				// @ts-ignore
@@ -292,7 +292,7 @@ export default {
 				dbs.loadData();
 			} else {
 				// 反之，将刚刚创建的评论追加到当前列表尾部
-				row.created_time = this.$dayjs(row.created_time).fromNow();
+				row.create_date = this.$dayjs(row.create_date).fromNow();
 				dbs.dataList = dbs.dataList.concat(row);
 			}
 		},

@@ -38,14 +38,14 @@
 			"bsonType": "file",
 			"description": "缩略图"
 		},
-		"created_time": {
+		"create_date": {
 			"bsonType": "timestamp",
 			"description": "创建时间",
 			"forceDefaultValue": {
 				"$env": "now"
 			}
 		},
-		"modified_time": {
+		"update_date": {
 			"bsonType": "timestamp",
 			"description": "修改时间",
 			"forceDefaultValue": {
