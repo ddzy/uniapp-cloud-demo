@@ -9,46 +9,71 @@
 	],
 	"permission": {
 		"read": true,
+		"count": true,
 		"create": "'user' in auth.role",
 		"update": "doc.from == auth.uid",
 		"delete": "doc.from == auth.uid"
 	},
 	"properties": {
 		"_id": {
-			"description": "ID，系统自动生成"
+			"description": "ID，系统自动生成",
+			"permission": {
+				"read": true
+			}
 		},
 		"from": {
 			"bsonType": "string",
 			"description": "回复人",
-			"foreignKey": "uni-id-users._id"
+			"foreignKey": "uni-id-users._id",
+			"permission": {
+				"read": true
+			}
 		},
 		"to": {
 			"bsonType": "string",
 			"description": "回复谁",
-			"foreignKey": "uni-id-users._id"
+			"foreignKey": "uni-id-users._id",
+			"permission": {
+				"read": true
+			}
 		},
 		"comment_id": {
 			"bsonType": "string",
 			"description": "所属的评论",
-			"foreignKey": "comment._id"
+			"foreignKey": "comment._id",
+			"permission": {
+				"read": true
+			}
 		},
 		"content": {
 			"bsonType": "string",
-			"description": "回复的文本内容"
+			"description": "回复的文本内容",
+			"permission": {
+				"read": true
+			}
 		},
 		"avatar": {
 			"bsonType": "string",
-			"description": "回复的图片内容"
+			"description": "回复的图片内容",
+			"permission": {
+				"read": true
+			}
 		},
 		"avatar_file": {
 			"bsonType": "file",
-			"description": "图片的文件对象"
+			"description": "图片的文件对象",
+			"permission": {
+				"read": true
+			}
 		},
 		"create_date": {
 			"bsonType": "timestamp",
 			"description": "回复时间",
 			"forceDefaultValue": {
 				"$env": "now"
+			},
+			"permission": {
+				"read": true
 			}
 		}
 	}

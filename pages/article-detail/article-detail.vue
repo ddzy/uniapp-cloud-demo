@@ -55,10 +55,17 @@
 					</uni-list-item>
 					<unicloud-db
 						v-slot:default="{ data, error, pagination, hasMore, loading }"
-						:collection="replyCollection"
+						:collection="[
+							replyCollection
+								.where({
+									comment_id: v._id,
+								})
+								.field('from,to,_id,content,create_date')
+								.orderBy('create_date', 'desc')
+								.getTemp(),
+							userCollection.field('_id,nickname,avatar').getTemp(),
+						]"
 						:ref="`replyDBRef-${i}`"
-						orderby="create_date desc"
-						:where="`comment_id == '${v._id}'`"
 						:getone="false"
 						:getcount="true"
 						:loadtime="'auto'"
@@ -174,6 +181,8 @@ interface ILocalReply extends Omit<IReply, 'create_date'> {
 	create_date: string;
 }
 
+const db = uniCloud.databaseForJQL();
+
 export default {
 	data() {
 		return {
@@ -195,7 +204,8 @@ export default {
 				},
 				commentIndex: 0,
 			},
-			replyCollection: [],
+			replyCollection: db.collection('reply'),
+			userCollection: db.collection('uni-id-users'),
 		};
 	},
 	computed: {

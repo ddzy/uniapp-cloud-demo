@@ -12,8 +12,12 @@ exports.main = async (event, context) => {
 		return verify;
 	}
 	const { uid } = verify;
-	const db = await uniCloud.databaseForJQL();
+	const db = await uniCloud.databaseForJQL({
+		event,
+		context,
+	});
 	const replyCollection = await db.collection('reply');
+	const userCollection = await db.collection('uni-id-users');
 	const params = {
 		from: uid,
 		to: event.to,
@@ -23,12 +27,16 @@ exports.main = async (event, context) => {
 	};
 
 	const { id } = await replyCollection.add(params);
-	const replyCollectionTemp = await replyCollection
+	const foundReplyTemp = await replyCollection
 		.where({
 			_id: id,
 		})
+		.field('from,to,content,create_date')
 		.getTemp();
-	const { data } = await db.collection(replyCollectionTemp, 'user').get({
+	const foundUserTemp = await userCollection
+		.field('_id,nickname,avatar')
+		.getTemp();
+	const { data } = await db.collection(foundReplyTemp, foundUserTemp).get({
 		getOne: true,
 	});
 	data.from = data.from[0];
@@ -36,7 +44,8 @@ exports.main = async (event, context) => {
 
 	//返回数据给客户端
 	return {
-		code: 0,
+		errCode: 0,
+		errMsg: '',
 		data,
 	};
 };

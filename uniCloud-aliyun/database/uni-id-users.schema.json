@@ -5,41 +5,60 @@
 		"create": false,
 		"update": "doc._id == auth.uid",
 		"read": true,
-		"count": false,
+		"count": "doc._id == auth.uid",
 		"delete": false
 	},
 	"properties": {
 		"_id": {
-			"description": "存储文档 ID（用户 ID），系统自动生成"
+			"description": "存储文档 ID（用户 ID），系统自动生成",
+			"permission": {
+				"read": true
+			}
 		},
 		"nickname": {
 			"bsonType": "string",
 			"title": "昵称",
 			"description": "用户昵称",
-			"trim": "both"
+			"trim": "both",
+			"permission": {
+				"read": true
+			}
 		},
 		"username": {
 			"bsonType": "string",
 			"title": "用户名",
 			"description": "用户名，不允许重复",
-			"trim": "both"
+			"trim": "both",
+			"permission": {
+				"read": true
+			}
 		},
 		"avatar": {
 			"bsonType": "string",
 			"title": "头像地址",
 			"description": "头像地址",
-			"trim": "both"
+			"trim": "both",
+			"permission": {
+				"read": true
+			}
 		},
 		"avatar_file": {
 			"bsonType": "file",
 			"title": "头像文件",
-			"description": "用file类型方便使用uni-file-picker组件"
+			"description": "用file类型方便使用uni-file-picker组件",
+			"permission": {
+				"read": true
+			}
 		},
 		"password": {
 			"bsonType": "password",
 			"title": "密码",
 			"description": "密码，加密存储",
-			"trim": "both"
+			"trim": "both",
+			"permission": {
+				"read": "doc._id == auth.uid",
+				"write": "doc._id == auth.uid"
+			}
 		},
 		"password_secret_version": {
 			"bsonType": "int",
