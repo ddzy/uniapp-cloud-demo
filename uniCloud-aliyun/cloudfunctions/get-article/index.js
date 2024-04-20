@@ -7,27 +7,26 @@ exports.main = async (event, context) => {
 		event,
 		context,
 	});
+	const articleCollection = await db.collection('article');
+	const userCollection = await db.collection('uni-id-users');
 
-	// 1. 直接使用虚拟联表查询（性能较差）
-	// const res = await db.collection('article,uni-id-users').get();
-
-	// 2. 先过滤获取主表的临时表，再联表查询
-	// 临时表field方法内需要包含关联字段，否则无法建立关联关系
-	const articleCollection = await db
-		.collection('article')
+	const foundArticleTemp = await articleCollection
 		.where({
 			_id: event._id,
 		})
+		.field(
+			'author_id,title,content,brief,avatar,avatar_file,create_date,update_date'
+		)
 		.getTemp();
-	// 注意collection方法内需要传入所有用到的表名，用逗号分隔，主表需要放在第一位
+	const foundUserTemp = await userCollection
+		.field('_id,nickname,avatar')
+		.getTemp();
+
 	let res = await db
-		.collection(articleCollection, 'uni-id-users')
+		.collection(foundArticleTemp, foundUserTemp)
 		.get({ getOne: true });
 	res = res.data;
-	res.author_id =
-		Array.isArray(res.author_id) && res.author_id.length
-			? res.author_id[0]
-			: null;
+	res.author_id = res.author_id[0];
 
 	return {
 		errCode: 0,

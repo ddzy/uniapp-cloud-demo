@@ -46,7 +46,7 @@ const user: Module<IUserModuleState, IRootModuleState> = {
 				name: 'get-user',
 				data: {},
 			});
-			if (res.result && res.result.code === 0) {
+			if (res.result && res.result.errCode === 0) {
 				store.commit('UPDATE_USER_INFO', res.result.data);
 				store.commit('UPDATE_IS_LOGINED', true);
 			}

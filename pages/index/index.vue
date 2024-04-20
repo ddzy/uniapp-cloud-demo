@@ -31,6 +31,7 @@
 
 <script lang="ts">
 import { IArticle } from '../../typings';
+
 export default {
 	data() {
 		return {
@@ -67,8 +68,8 @@ export default {
 				name: 'get-articles',
 				data: params,
 			});
-			if (res && res.result && Array.isArray(res.result.data)) {
-				this.articles = res.result.data.map((v) => {
+			if (res.result.errCode === 0) {
+				this.articles = res.result.data.map((v: IArticle) => {
 					return {
 						...v,
 					};
@@ -87,7 +88,7 @@ export default {
 				url: `/pages/operate-article/operate-article`,
 			});
 		},
-		async toDetailPage(row) {
+		async toDetailPage(row: IArticle) {
 			uni.navigateTo({
 				url: `/pages/article-detail/article-detail?articleId=${row._id}`,
 			});

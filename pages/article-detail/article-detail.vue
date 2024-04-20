@@ -55,7 +55,7 @@
 					</uni-list-item>
 					<unicloud-db
 						v-slot:default="{ data, error, pagination, hasMore, loading }"
-						collection="reply,uni-id-users"
+						:collection="replyCollection"
 						:ref="`replyDBRef-${i}`"
 						orderby="create_date desc"
 						:where="`comment_id == '${v._id}'`"
@@ -195,6 +195,7 @@ export default {
 				},
 				commentIndex: 0,
 			},
+			replyCollection: [],
 		};
 	},
 	computed: {

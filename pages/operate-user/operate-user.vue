@@ -152,7 +152,7 @@ export default {
 					name: 'put-user',
 					data: params,
 				});
-				if (res.result.code === 0) {
+				if (res.result.errCode === 0) {
 					uni.showToast({
 						icon: 'success',
 						title: '保存成功',

@@ -22,6 +22,7 @@ exports.main = async (event, context) => {
 	// 此处使用 databaseForJQL 会提示没有权限
 	const db = await uniCloud.database();
 	const userCollection = await db.collection('uni-id-users');
+	const roleCollection = await db.collection('uni-id-roles');
 
 	// 查询用户
 	const foundExistingUsers = await userCollection
@@ -36,8 +37,6 @@ exports.main = async (event, context) => {
 		// uni-id 生成 token
 		const { token, tokenExpired } = await uniId.createToken({
 			uid: foundExistingUsers.data[0]._id,
-			role: ['admin'],
-			permission: [],
 		});
 
 		return {
@@ -51,7 +50,15 @@ exports.main = async (event, context) => {
 			},
 		};
 	} else {
-		// 如果用户不存在，那么创建新用户
+		// 如果用户不存在，先创建角色
+		await roleCollection.add({
+			role_id: 'user',
+			role_name: '普通用户',
+			permission: [],
+			create_date: Date.now(),
+			update_date: Date.now(),
+		});
+		// 接着创建新用户
 		const createdUser = await userCollection.add({
 			avatar: event.avatar,
 			nickname: event.nickname,
@@ -64,15 +71,15 @@ exports.main = async (event, context) => {
 					session_key,
 				},
 			},
+			role: ['user'],
 			create_date: Date.now(),
 			update_date: Date.now(),
 		});
+
 		let foundUser = await userCollection.doc(createdUser.id).get();
 		// uni-id 生成 token
 		const { token, tokenExpired } = await uniId.createToken({
 			uid: foundUser.data[0]._id,
-			role: ['admin'],
-			permission: [],
 		});
 
 		return {

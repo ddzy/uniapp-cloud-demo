@@ -3,8 +3,8 @@
 	"required": [],
 	"permission": {
 		"create": false,
-		"update": false,
-		"read": false,
+		"update": "doc._id == auth.uid",
+		"read": true,
 		"count": false,
 		"delete": false
 	},
@@ -12,11 +12,28 @@
 		"_id": {
 			"description": "存储文档 ID（用户 ID），系统自动生成"
 		},
+		"nickname": {
+			"bsonType": "string",
+			"title": "昵称",
+			"description": "用户昵称",
+			"trim": "both"
+		},
 		"username": {
 			"bsonType": "string",
 			"title": "用户名",
 			"description": "用户名，不允许重复",
 			"trim": "both"
+		},
+		"avatar": {
+			"bsonType": "string",
+			"title": "头像地址",
+			"description": "头像地址",
+			"trim": "both"
+		},
+		"avatar_file": {
+			"bsonType": "file",
+			"title": "头像文件",
+			"description": "用file类型方便使用uni-file-picker组件"
 		},
 		"password": {
 			"bsonType": "password",
@@ -28,12 +45,6 @@
 			"bsonType": "int",
 			"title": "passwordSecret",
 			"description": "密码使用的passwordSecret版本"
-		},
-		"nickname": {
-			"bsonType": "string",
-			"title": "昵称",
-			"description": "用户昵称",
-			"trim": "both"
 		},
 		"gender": {
 			"bsonType": "int",
@@ -121,17 +132,6 @@
 				}
 			]
 		},
-		"avatar": {
-			"bsonType": "string",
-			"title": "头像地址",
-			"description": "头像地址",
-			"trim": "both"
-		},
-		"avatar_file": {
-			"bsonType": "file",
-			"title": "头像文件",
-			"description": "用file类型方便使用uni-file-picker组件"
-		},
 		"d_ids": {
 			"bsonType": "array",
 			"description": "部门ID",
@@ -159,7 +159,8 @@
 			},
 			"foreignKey": "uni-id-roles.role_id",
 			"permission": {
-				"write": false
+				"write": false,
+				"read": "doc._id == auth.uid"
 			}
 		},
 		"wx_unionid": {
@@ -299,182 +300,8 @@
 						}
 					}
 				}
-			}
-		},
-		"register_env": {
-			"bsonType": "object",
-			"description": "注册环境信息",
-			"properties": {
-				"appid": {
-					"bsonType": "string",
-					"description": "注册时的应用AppId"
-				},
-				"uni_platform": {
-					"bsonType": "string",
-					"description": "注册时的应用平台，app、h5等"
-				},
-				"os_name": {
-					"bsonType": "string",
-					"description": "注册时的客户端系统类型，ios、android、windows、mac、linux"
-				},
-				"app_name": {
-					"bsonType": "string",
-					"description": "注册时的应用名称"
-				},
-				"app_version": {
-					"bsonType": "string",
-					"description": "注册时的应用版本名称"
-				},
-				"app_version_code": {
-					"bsonType": "string",
-					"description": "注册时的应用版本号码"
-				},
-				"channel": {
-					"bsonType": "string",
-					"description": "注册时的应用渠道或小程序启动场景"
-				},
-				"client_ip": {
-					"bsonType": "string",
-					"description": "注册时的客户端ip"
-				}
-			}
-		},
-		"realname_auth": {
-			"bsonType": "object",
-			"description": "实名认证信息",
-			"required": [
-				"type",
-				"auth_status"
-			],
-			"properties": {
-				"type": {
-					"bsonType": "int",
-					"minimum": 0,
-					"maximum": 1,
-					"description": "用户类型：0 个人用户 1 企业用户"
-				},
-				"auth_status": {
-					"bsonType": "int",
-					"minimum": 0,
-					"maximum": 3,
-					"description": "认证状态：0 未认证 1 等待认证 2 认证通过 3 认证失败"
-				},
-				"auth_date": {
-					"bsonType": "timestamp",
-					"description": "认证通过时间"
-				},
-				"real_name": {
-					"bsonType": "string",
-					"description": "真实姓名/企业名称"
-				},
-				"identity": {
-					"bsonType": "string",
-					"description": "身份证号码/营业执照号码"
-				},
-				"id_card_front": {
-					"bsonType": "string",
-					"description": "身份证正面照 URL"
-				},
-				"id_card_back": {
-					"bsonType": "string",
-					"description": "身份证反面照 URL"
-				},
-				"in_hand": {
-					"bsonType": "string",
-					"description": "手持身份证照片 URL"
-				},
-				"license": {
-					"bsonType": "string",
-					"description": "营业执照 URL"
-				},
-				"contact_person": {
-					"bsonType": "string",
-					"description": "联系人姓名"
-				},
-				"contact_mobile": {
-					"bsonType": "string",
-					"description": "联系人手机号码"
-				},
-				"contact_email": {
-					"bsonType": "string",
-					"description": "联系人邮箱"
-				}
-			}
-		},
-		"score": {
-			"bsonType": "int",
-			"description": "用户积分，积分变更记录可参考：uni-id-scores表定义"
-		},
-		"register_date": {
-			"bsonType": "timestamp",
-			"description": "注册时间",
-			"forceDefaultValue": {
-				"$env": "now"
-			}
-		},
-		"register_ip": {
-			"bsonType": "string",
-			"description": "注册时 IP 地址",
-			"forceDefaultValue": {
-				"$env": "clientIP"
-			}
-		},
-		"last_login_date": {
-			"bsonType": "timestamp",
-			"description": "最后登录时间"
-		},
-		"last_login_ip": {
-			"bsonType": "string",
-			"description": "最后登录时 IP 地址"
-		},
-		"token": {
-			"bsonType": "array",
-			"description": "用户token"
-		},
-		"inviter_uid": {
-			"bsonType": "array",
-			"description": "用户全部上级邀请者",
-			"trim": "both"
-		},
-		"invite_time": {
-			"bsonType": "timestamp",
-			"description": "受邀时间"
-		},
-		"my_invite_code": {
-			"bsonType": "string",
-			"description": "用户自身邀请码"
-		},
-		"identities": {
-			"bsonType": "array",
-			"description": "三方平台身份信息；一个对象代表一个身份，参数支持: provider 身份源, userInfo 三方用户信息, openid 三方openid, unionid 三方unionid, uid 三方uid",
-			"permission": {
-				"read": "'READ_UNI_ID_USERS' in auth.permission",
-				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
-			}
-		},
-		"brief": {
-			"bsonType": "string",
-			"description": "一句话简介",
-			"defaultValue": ""
-		},
-		"valid_token_date": {
-			"bsonType": "timestamp",
-			"description": "uni-id refreshToken时会校验，如果创建token时间在此时间点之前，则拒绝下发新token，返回token失效错误码"
-		},
-		"create_date": {
-			"bsonType": "timestamp",
-			"description": "注册时间",
-			"forceDefaultValue": {
-				"$env": "now"
-			}
-		},
-		"update_date": {
-			"bsonType": "timestamp",
-			"description": "更新时间",
-			"forceDefaultValue": {
-				"$env": "now"
-			}
+			},
+			"version": "1.0.3"
 		}
-	},
-	"version": "1.0.3"
+	}
 }

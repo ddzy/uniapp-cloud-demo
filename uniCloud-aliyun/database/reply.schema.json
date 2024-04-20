@@ -9,9 +9,9 @@
 	],
 	"permission": {
 		"read": true,
-		"create": true,
-		"update": true,
-		"delete": true
+		"create": "'user' in auth.role",
+		"update": "doc.from == auth.uid",
+		"delete": "doc.from == auth.uid"
 	},
 	"properties": {
 		"_id": {
