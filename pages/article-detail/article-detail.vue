@@ -65,10 +65,10 @@
 								.getTemp(),
 							userCollection.field('_id,nickname,avatar').getTemp(),
 						]"
-						:ref="`replyDBRef-${i}`"
+						:ref="`replyDBRef-${v._id}`"
 						:getone="false"
 						:getcount="true"
-						:loadtime="'auto'"
+						:loadtime="'manual'"
 						:page-size="5"
 						@load="replyLoad"
 					>
@@ -108,7 +108,7 @@
 								<view
 									v-if="hasMore"
 									class="reply-loadmore"
-									@click="replyLoadMore(i)"
+									@click="replyLoadMore(v._id)"
 								>
 									<text class="reply-loadmore-text">
 										查看剩余{{ pagination.count - data.length }}条回复
@@ -244,10 +244,10 @@ export default {
 	onLoad(options: { articleId: string }) {
 		this.articleId = options.articleId || '';
 	},
-	onShow() {
+	onReady() {
 		if (this.articleId) {
 			this.fetchInfo();
-			this.fetchComments();
+			this.fetchComments(true);
 		}
 	},
 	methods: {
@@ -264,7 +264,7 @@ export default {
 			}
 			uni.hideLoading();
 		},
-		async fetchComments() {
+		async fetchComments(isFirstlyFetch = false) {
 			const res = await uniCloud.callFunction({
 				name: 'get-comments',
 				data: {
@@ -279,7 +279,18 @@ export default {
 						create_date: this.$dayjs(v.create_date).fromNow(),
 					};
 				});
+				if (isFirstlyFetch) {
+					this.replyLoadFirstly();
+				}
 			}
+		},
+		async replyLoadFirstly() {
+			setTimeout(() => {
+				this.comments.forEach((v, i) => {
+					const dbs = (this.$refs[`replyDBRef-${v._id}`] as any[])[0];
+					dbs.loadData();
+				});
+			}, 0);
 		},
 		async replyLoad(data: ILocalReply[]) {
 			data.forEach((v) => {
@@ -290,15 +301,15 @@ export default {
 				v.to = v.to[0];
 			});
 		},
-		async replyLoadMore(index: number) {
-			const dbs = (this.$refs[`replyDBRef-${index}`] as Vue[])[0];
+		async replyLoadMore(commentId: string) {
+			const dbs = (this.$refs[`replyDBRef-${commentId}`] as Vue[])[0];
 			// @ts-ignore
 			dbs.loadMore();
 		},
 		async replyAppend(row: ILocalReply) {
 			// 如果列表本来没有数据，那么创建评论后手动获取一次初始数据
 			// @ts-ignore
-			const dbs = this.$refs[`replyDBRef-${this.replyInfo.commentIndex}`][0];
+			const dbs = this.$refs[`replyDBRef-${this.replyInfo.comment._id}`][0];
 			if (!dbs.dataList.length) {
 				dbs.loadData();
 			} else {
