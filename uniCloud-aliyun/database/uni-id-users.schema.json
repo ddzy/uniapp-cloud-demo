@@ -50,6 +50,13 @@
 				"read": true
 			}
 		},
+		"brief": {
+			"bsonType": "string",
+			"description": "一句话简介",
+			"permission": {
+				"read": true
+			}
+		},
 		"password": {
 			"bsonType": "password",
 			"title": "密码",
@@ -321,6 +328,10 @@
 				}
 			},
 			"version": "1.0.3"
+		},
+		"valid_token_date": {
+			"bsonType": "timestamp",
+			"description": "uni-id 使用"
 		}
 	}
 }

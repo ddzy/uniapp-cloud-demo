@@ -3,11 +3,17 @@ import constants from './constants/index';
 // 需要跳转到登录页的错误码
 const ERROR_CODE_SHOULD_GO_LOGIN = [];
 // 需要将全局登录状态设置为 未登录 的状态码
-const ERROR_CODE_SHOULD_SET_LOGOUT_GLOBALLY = ['uni-id-token-expired'];
+const ERROR_CODE_SHOULD_SET_LOGOUT_GLOBALLY = [
+	'uni-id-token-expired',
+	'uni-id-check-token-failed',
+];
 // 不需要全局 toast 的错误码
 const ERROR_CODE_NOT_TOAST_GLOBALLY = [];
 // 需要清除 token 的错误码
-const ERROR_CODE_SHOULD_CLEAR_TOKEN = ['uni-id-token-expired'];
+const ERROR_CODE_SHOULD_CLEAR_TOKEN = [
+	'uni-id-token-expired',
+	'uni-id-check-token-failed',
+];
 
 // callFunction 拦截器
 uniCloud.addInterceptor('callFunction', {

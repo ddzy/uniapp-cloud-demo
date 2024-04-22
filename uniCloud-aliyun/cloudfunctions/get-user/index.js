@@ -21,7 +21,7 @@ exports.main = async (event, context) => {
 
 	const foundUser = await userCollection
 		.doc(uid)
-		.field('nickname,avatar,avatar_file,role,username,update_date')
+		.field('nickname,avatar,avatar_file,brief,gender,role,username,update_date')
 		.get({
 			getOne: true,
 		});
