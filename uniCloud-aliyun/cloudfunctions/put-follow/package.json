@@ -1,5 +1,5 @@
 {
-  "name": "get-article",
+  "name": "put-follow",
   "dependencies": {
     "common-cloud-utils": "file:../common/common-cloud-utils",
     "uni-id-common": "file:../../../uni_modules/uni-id-common/uniCloud/cloudfunctions/common/uni-id-common"

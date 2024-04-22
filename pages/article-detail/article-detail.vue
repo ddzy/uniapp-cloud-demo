@@ -24,7 +24,7 @@
 						<view class="user-follow">
 							<uni-fav
 								:star="false"
-								:checked="isFollowed"
+								:checked="computedIsFollowed"
 								:content-text="{
 									contentDefault: '关注',
 									contentFav: '已关注',
@@ -188,7 +188,7 @@ export default {
 		return {
 			articleId: '',
 			articleInfo: undefined as IArticle | undefined,
-			isFollowed: false,
+			isFollowCommitting: false,
 			inputValue: '',
 			isInputCommitting: false,
 			isInputFocus: false,
@@ -228,6 +228,9 @@ export default {
 		computedAvatarUrl() {
 			return (this.articleInfo && this.articleInfo.avatar) || '';
 		},
+		computedAuthorId() {
+			return this.articleInfo?.author_id?._id ?? '';
+		},
 		computedAuthorName() {
 			return this.articleInfo?.author_id?.nickname ?? '';
 		},
@@ -239,6 +242,9 @@ export default {
 		},
 		computedInputPlaceholder() {
 			return this.isReply ? `回复 ${this.replyInfo.to.nickname}` : `理性评论`;
+		},
+		computedIsFollowed() {
+			return !!this.articleInfo?.author_id.follow_status;
 		},
 	},
 	onLoad(options: { articleId: string }) {
@@ -324,7 +330,27 @@ export default {
 			});
 		},
 		async follow() {
-			this.isFollowed = !this.isFollowed;
+			if (this.isFollowCommitting) {
+				return;
+			}
+			this.isFollowCommitting = true;
+			try {
+				const nextStatus = !this.articleInfo?.author_id.follow_status;
+				const res = await uniCloud.callFunction({
+					name: 'put-follow',
+					data: {
+						to: this.computedAuthorId,
+						status: nextStatus,
+					},
+				});
+				if (this.articleInfo) {
+					this.articleInfo.author_id.follow_status = res.result.data.status;
+				}
+				this.isFollowCommitting = false;
+			} catch (e) {
+				//TODO handle the exception
+				this.isFollowCommitting = false;
+			}
 		},
 		async confirmInput(v: string) {
 			this.isReply ? this.sendReply() : this.sendComment();

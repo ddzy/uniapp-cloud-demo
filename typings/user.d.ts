@@ -10,5 +10,8 @@ export interface IUser {
 	brief: string;
 	create_date: number;
 	update_date: number;
+
+	// 未在数据库声明
+	follow_status: boolean;
 }
 export type IUserGender = 0 | 1 | 2;
