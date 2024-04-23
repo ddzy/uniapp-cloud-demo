@@ -1,7 +1,10 @@
 import constants from './constants/index';
 
 // 需要跳转到登录页的错误码
-const ERROR_CODE_SHOULD_GO_LOGIN = [];
+const ERROR_CODE_SHOULD_GO_LOGIN = [
+	'uni-id-token-expired',
+	'uni-id-check-token-failed',
+];
 // 需要将全局登录状态设置为 未登录 的状态码
 const ERROR_CODE_SHOULD_SET_LOGOUT_GLOBALLY = [
 	'uni-id-token-expired',

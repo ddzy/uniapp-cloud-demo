@@ -46,7 +46,7 @@
 			"path": "pages/article-detail/article-detail",
 			"style": {
 				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
+				"enablePullDownRefresh": true
 			}
 		}
 	],

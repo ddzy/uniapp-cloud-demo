@@ -5,7 +5,10 @@
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"preinstall": "npx only-allow pnpm"
+		"preinstall": "npx only-allow pnpm",
+		"commit": "git-cz",
+		"prepare": "husky",
+		"format": "pnpm exec prettier \"pages/**/*.{js,ts,vue,jsx,tsx}\" --config prettier.config.js --write"
 	},
 	"keywords": [],
 	"author": "",
@@ -15,6 +18,21 @@
 		"lodash": "^4.17.21"
 	},
 	"devDependencies": {
-		"@types/lodash": "^4.17.0"
+		"@types/lodash": "^4.17.0",
+		"cz-conventional-changelog": "^3.3.0",
+		"husky": "^9.0.11",
+		"lint-staged": "^15.2.2",
+		"prettier": "^3.2.5"
+	},
+	"config": {
+		"commitizen": {
+			"path": "cz-conventional-changelog"
+		}
+	},
+	"lint-staged": {
+		"pages/**/*.{js,jsx,vue,ts,tsx}": [
+			"pnpm format",
+			"git add"
+		]
 	}
 }
