@@ -36,13 +36,14 @@
 					:extra-icon="{ color: '', size: '22', type: 'hand-up' }"
 				></uni-list-item>
 				<uni-list-item
-					title="我看过的"
+					title="我关注的"
 					note=""
 					show-arrow
 					thumb=""
 					clickable
 					show-extra-icon
-					:extra-icon="{ color: '', size: '22', type: 'eye' }"
+					:extra-icon="{ color: '', size: '22', type: 'personadd' }"
+					@click="toFollowPage"
 				></uni-list-item>
 				<uni-list-item
 					title="我收藏的"
@@ -112,6 +113,11 @@ export default {
 		toOperateUserPage() {
 			uni.navigateTo({
 				url: '/pages/operate-user/operate-user',
+			});
+		},
+		toFollowPage() {
+			uni.navigateTo({
+				url: '/pages/follow/follow',
 			});
 		},
 		async login() {

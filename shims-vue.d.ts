@@ -1,7 +1,7 @@
 import * as lodash from 'lodash';
 import * as dayjs from 'dayjs';
 import * as utils from './utils/index';
-import store from './store/store';
+import { store } from './store/store';
 
 // add types in vue
 declare module '@vue/runtime-core' {
@@ -12,3 +12,5 @@ declare module '@vue/runtime-core' {
 		$lodash: typeof lodash;
 	}
 }
+
+export {};

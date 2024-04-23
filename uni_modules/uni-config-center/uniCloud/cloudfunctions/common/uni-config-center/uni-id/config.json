@@ -1,6 +1,6 @@
 {
 	"tokenSecret": "__jwt_secret__",
-	"tokenExpiresIn": 7200,
+	"tokenExpiresIn": 86400,
 	"tokenExpiresThreshold": 3600,
 	"userRegisterDefaultRole": ["user"],
 	"mp-weixin": {

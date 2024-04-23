@@ -14,6 +14,13 @@
 			}
 		},
 		{
+			"path": "pages/follow/follow",
+			"style": {
+				"navigationBarTitleText": "我关注的",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
 			"path": "pages/operate-user/operate-user",
 			"style": {
 				"navigationBarTitleText": "编辑个人资料",

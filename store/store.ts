@@ -1,18 +1,17 @@
+import { InjectionKey } from 'vue';
 import { Store, createStore } from 'vuex';
 import userModule, { IUserModuleState } from './modules/user';
 
 export interface IRootModuleState {
-	user : IUserModuleState
+	user: IUserModuleState;
 }
 
-const store : Store<IRootModuleState> = createStore({
+export const store: Store<IRootModuleState> = createStore<IRootModuleState>({
 	modules: {
 		user: userModule,
 	},
-	state: {
-	} as IRootModuleState,
+	state: {} as IRootModuleState,
 	mutations: {},
 	actions: {},
 });
-
-export default store;
+export const storeKey: InjectionKey<Store<IRootModuleState>> = Symbol();

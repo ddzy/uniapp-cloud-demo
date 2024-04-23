@@ -74,7 +74,7 @@ import dayjsRelativeTime from 'dayjs/plugin/relativeTime';
 import dayjsUpdateLocale from 'dayjs/plugin/updateLocale';
 import 'dayjs/locale/zh-cn';
 import App from './App';
-import store from './store/store';
+import { store, storeKey } from './store/store';
 
 dayjs.locale('zh-cn');
 dayjs.extend(dayjsRelativeTime);
@@ -101,6 +101,7 @@ export function createApp() {
 	app.config.globalProperties.$store = store;
 	app.config.globalProperties.$dayjs = dayjs;
 	app.config.globalProperties.$lodash = lodash;
+	app.use(store, storeKey);
 
 	return {
 		app,
