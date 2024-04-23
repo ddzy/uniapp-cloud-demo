@@ -217,7 +217,7 @@ export default {
 		},
 		computedCreatedTime() {
 			let time = this.$dayjs(this.articleInfo?.create_date).format(
-				'YYYY-MM-DD HH:mm:ss'
+				'YYYY-MM-DD HH:mm:ss',
 			);
 			return `发表于：${time}`;
 		},

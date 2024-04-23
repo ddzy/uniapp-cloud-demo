@@ -163,7 +163,7 @@ export default {
 					uni.setStorageSync(constants.token.TOKEN, res.result.data.token);
 					uni.setStorageSync(
 						constants.token.TOKEN_EXPIRED,
-						res.result.data.tokenExpired
+						res.result.data.tokenExpired,
 					);
 				}
 
