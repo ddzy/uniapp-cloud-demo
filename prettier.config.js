@@ -18,4 +18,4 @@ module.exports = {
 	htmlWhitespaceSensitivity: 'css',
 	// 尾随逗号
 	trailingComma: 'all',
-};
+}

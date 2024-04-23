@@ -1,6 +1,13 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
+			"path": "pages/chat/chat",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "uni-cloud-demo"
@@ -65,6 +72,12 @@
 				"text": "首页",
 				"iconPath": "static/images/home-3-line.png",
 				"selectedIconPath": "static/images/home-3-fill-primary.png"
+			},
+			{
+				"pagePath": "pages/chat/chat",
+				"text": "私信",
+				"iconPath": "static/images/chat-smile-2-line.png",
+				"selectedIconPath": "static/images/chat-smile-2-fill-primary.png"
 			},
 			{
 				"pagePath": "pages/user/user",
