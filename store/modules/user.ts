@@ -13,10 +13,28 @@ function genDefaultUserInfo(): IUser {
 		openid: '',
 		nickname: '',
 		avatar: '',
+		avatar_file: {
+			cloudPath: '',
+			extname: '',
+			fileID: '',
+			fileType: '',
+			image: {
+				width: 0,
+				height: 0,
+				location: '',
+			},
+			name: '',
+			path: '',
+			size: 0,
+			status: '',
+			url: '',
+			uuid: 0,
+		},
 		gender: 0,
 		brief: '',
 		create_date: 0,
 		update_date: 0,
+		follow_status: false,
 	};
 }
 

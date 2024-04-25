@@ -63,13 +63,28 @@ export default {
 			],
 		};
 	},
-	computed: {},
-	watch: {},
+	computed: {
+		computedPushClientId() {
+			return this.$store.state.chat.pushClientId;
+		},
+	},
 	onLoad(options: { to: string }) {
 		this.to = options.to || '';
 	},
+	async onReady() {
+		uni.onPushMessage((result) => {
+			console.log('result :>> ', result);
+		});
+	},
 	methods: {
-		handleConfirm() {},
+		async handleConfirm() {
+			await uniCloud.callFunction({
+				name: 'chat',
+				data: {
+					push_clientid: this.computedPushClientId,
+				},
+			});
+		},
 		handleInput() {},
 	},
 };
