@@ -55,6 +55,13 @@
 				"navigationBarTitleText": "",
 				"enablePullDownRefresh": true
 			}
+		},
+		{
+			"path": "pages/chat-detail/chat-detail",
+			"style": {
+				"navigationBarTitleText": "会话",
+				"enablePullDownRefresh": true
+			}
 		}
 	],
 	"globalStyle": {

@@ -18,6 +18,7 @@
 						:thumb="v.to.avatar"
 						:right-text="v.create_date"
 						clickable
+						@click="toChatDetailPage(v)"
 					>
 						<template #right>
 							<uni-fav
@@ -90,6 +91,11 @@ export default defineComponent({
 			});
 		},
 		follow(row: IFollow) {},
+		toChatDetailPage(row: IFollow) {
+			uni.navigateTo({
+				url: `/pages/chat-detail/chat-detail?to=${row.to._id}`,
+			});
+		},
 	},
 	mounted() {},
 });

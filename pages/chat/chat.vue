@@ -5,7 +5,15 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 
-export default defineComponent({});
+export default defineComponent({
+	data() {
+		return {};
+	},
+	computed: {},
+	watch: {},
+	mounted() {},
+	methods: {},
+});
 </script>
 
 <style lang="scss" scoped>
