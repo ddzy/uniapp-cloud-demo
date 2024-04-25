@@ -1,16 +1,45 @@
 'use strict';
 
+const uniIdCommon = require('uni-id-common');
+
 exports.main = async (event, context) => {
 	//event为客户端上传的参数
+	const uniId = uniIdCommon.createInstance({
+		context,
+	});
+	const verify = await uniId.checkToken(event.uniIdToken);
+	if (verify.errCode) {
+		return verify;
+	}
+	const { uid } = verify;
 	const db = await uniCloud.databaseForJQL({
 		event,
 		context,
 	});
+	const deviceCollection = await db.collection('uni-id-device');
 	const opendbDeviceCollection = await db.collection('opendb-device');
 	const clientInfos = await uniCloud.getClientInfos();
 
 	clientInfos.forEach(async (client) => {
 		let updateData = {
+			user_id: uid,
+			ua: client.ua || '',
+			uuid: client.uuid || '',
+			os_name: client.osName || '',
+			os_version: client.osVersion || '',
+			os_language: client.osLanguage || '',
+			os_theme: client.osTheme || '',
+			vendor: client.vendor || '',
+			push_clientid: event.push_clientid || '',
+			device_id: client.deviceId || '',
+			imei: client.imei || '',
+			oaid: client.oaid || '',
+			idfa: client.idfa || '',
+			model: client.deviceModel || '',
+			platform: client.platform || '',
+			last_active_ip: client.clientIP || '',
+		};
+		let updateOpendbData = {
 			appid: client.appId || '',
 			device_id: client.deviceId || '',
 			vendor: client.deviceBrand || '',
@@ -36,23 +65,34 @@ exports.main = async (event, context) => {
 			location_province: client.locationProvince || '',
 			location_city: client.locationCity || '',
 		};
-		const { data: foundDevice } = await opendbDeviceCollection
+
+		let { data: foundDevice } = await deviceCollection
 			.where({
-				device_id: client.deviceId,
+				user_id: uid,
 			})
 			.get({
 				getOne: true,
 			});
+
+		// 更新 userid 和 push_clientid 的对照表
 		if (foundDevice) {
-			// 如果设备已存在
+			await deviceCollection.where({ user_id: uid }).update(updateData);
+		} else {
+			await deviceCollection.add(updateData);
+		}
+
+		// 更新设备的 opendb 表
+		const foundOpendbDevice = await opendbDeviceCollection.where({
+			device_id: updateData.device_id,
+		});
+		if (foundOpendbDevice) {
 			await opendbDeviceCollection
 				.where({
-					device_id: client.deviceId,
+					device_id: updateData.device_id,
 				})
-				.update(updateData);
+				.update(updateOpendbData);
 		} else {
-			// 如果设备不存在
-			await opendbDeviceCollection.add(updateData);
+			await opendbDeviceCollection.add(updateOpendbData);
 		}
 	});
 

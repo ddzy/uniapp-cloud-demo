@@ -3,17 +3,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-
-export default defineComponent({
+export default {
 	data() {
 		return {};
 	},
-	computed: {},
-	watch: {},
+	computed: {
+		computedUserInfo() {
+			return this.$store.state.user.userInfo;
+		},
+	},
 	mounted() {},
 	methods: {},
-});
+};
 </script>
 
 <style lang="scss" scoped>

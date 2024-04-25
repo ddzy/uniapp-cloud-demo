@@ -157,14 +157,22 @@ export default {
 					},
 				});
 				if (res.result.code === 0) {
-					this.$store.commit('user/UPDATE_USER_INFO', res.result.data.user);
-					this.$store.commit('user/UPDATE_IS_LOGINED', true);
 					// 登录成功，存储token
 					uni.setStorageSync(constants.token.TOKEN, res.result.data.token);
 					uni.setStorageSync(
 						constants.token.TOKEN_EXPIRED,
 						res.result.data.tokenExpired,
 					);
+					// 重新获取用户信息
+					this.$store.dispatch('user/DISPATCH_USER_INFO');
+					// 存储 push_clientid
+					const { cid } = await uni.getPushClientId({});
+					await uniCloud.callFunction({
+						name: 'report-with-user',
+						data: {
+							push_clientid: cid,
+						},
+					});
 				}
 
 				uni.hideLoading();
