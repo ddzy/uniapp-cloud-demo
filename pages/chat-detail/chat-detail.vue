@@ -68,7 +68,7 @@ export default {
 	computed: {},
 	async onLoad(options: { toId: string; sessionId: string }) {
 		this.toId = options.toId || '';
-		this.sessionId = options?.sessionId ?? '';
+		this.sessionId = options.sessionId ?? '';
 		const { cid } = await uni.getPushClientId({});
 		this.pushClientId = cid || '';
 	},
