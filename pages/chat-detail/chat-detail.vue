@@ -2,21 +2,37 @@
 	<view class="container">
 		<view class="message-section">
 			<view class="message">
-				<uni-list class="message-list">
-					<uni-list-item
-						v-for="v in messages"
-						:class="{
-							'message-item': true,
-							'is-current-user': v.is_current_user,
-						}"
-						:key="v._id"
-						:title="v.content"
-						:thumb="v.avatar"
-						:right-text="v.create_time"
-						:border="false"
-						clickable
-					></uni-list-item>
-				</uni-list>
+				<unicloud-db
+					v-slot:default="{
+						data,
+						loading,
+						error,
+						options,
+					}: IUniUdb<ITableData[]>"
+					:collection="collection"
+					loadtime="manual"
+					ref="udbRef"
+					@load="formatData"
+				>
+					<view v-if="error">{{ error.message }}</view>
+					<view v-else>
+						<uni-list class="message-list">
+							<uni-list-item
+								v-for="v in data"
+								:class="{
+									'message-item': true,
+									'is-current-user': v.__isCurrentUser__,
+								}"
+								:key="v._id"
+								:title="v.content"
+								:thumb="v.from_id.avatar"
+								:right-text="v.create_date"
+								:border="false"
+								clickable
+							></uni-list-item>
+						</uni-list>
+					</view>
+				</unicloud-db>
 			</view>
 		</view>
 		<view class="inputbox-section">
@@ -36,6 +52,16 @@
 </template>
 
 <script lang="ts">
+import { IChatMessage, IUniUdb } from '../../typings/index';
+
+interface ITableData extends IChatMessage {
+	__isCurrentUser__: boolean;
+}
+
+const db = uniCloud.databaseForJQL();
+const chatMessageCollection = db.collection('chat-message');
+const userCollection = db.collection('uni-id-users');
+
 export default {
 	data() {
 		return {
@@ -43,29 +69,14 @@ export default {
 			toId: '',
 			sessionId: '',
 			inputValue: '',
-			messages: [
-				{
-					_id: '1',
-					content: '测试消息内容',
-					avatar:
-						'https://mp-65e620ad-f99b-46f7-a8c3-43f2c3a83942.cdn.bspapp.com/cloudstorage/94b1e4bb-a247-4e9c-a564-188b5d57ecbf.jpeg',
-					avatar_file: {},
-					create_time: this.$dayjs(Date.now()).fromNow(),
-					is_current_user: false,
-				},
-				{
-					_id: '2',
-					content: '测试消息内容',
-					avatar:
-						'https://mp-65e620ad-f99b-46f7-a8c3-43f2c3a83942.cdn.bspapp.com/cloudstorage/94b1e4bb-a247-4e9c-a564-188b5d57ecbf.jpeg',
-					avatar_file: {},
-					create_time: this.$dayjs(Date.now()).fromNow(),
-					is_current_user: true,
-				},
-			],
+			collection: 'chat-message' as any,
 		};
 	},
-	computed: {},
+	computed: {
+		computedUserId() {
+			return this.$store.state.user.userInfo._id;
+		},
+	},
 	async onLoad(options: { toId: string; sessionId: string }) {
 		this.toId = options.toId || '';
 		this.sessionId = options.sessionId ?? '';
@@ -73,6 +84,22 @@ export default {
 		this.pushClientId = cid || '';
 	},
 	async onReady() {
+		const foundChatMessagesTemp = await chatMessageCollection
+			.where(`session_id == '${this.sessionId}'`)
+			.field(
+				'_id,from_id,to_id,session_id,content,avatar,create_date,update_date',
+			)
+			.orderBy('create_date', 'desc')
+			.getTemp();
+		const foundUserTemp = await userCollection
+			.field('_id,nickname,avatar')
+			.getTemp();
+		this.collection = [foundChatMessagesTemp, foundUserTemp];
+		this.$nextTick(() => {
+			this.fetchData(true);
+		});
+
+		// 作为接收方，监听实时的消息推送
 		uni.onPushMessage((result) => {
 			switch (result.type) {
 				case 'receive':
@@ -81,13 +108,40 @@ export default {
 					};
 					// 接收到新消息，获取最新的消息列表
 					this.sessionId = payload.session_id || '';
+					this.fetchData(true);
 					break;
 				default:
 					break;
 			}
 		});
 	},
+	onPullDownRefresh() {
+		this.fetchData(true);
+	},
 	methods: {
+		async fetchData(isFirstlyFetch = false) {
+			const udb = this.$refs.udbRef as any;
+			if (isFirstlyFetch) {
+				// 获取首屏数据
+				udb.loadData();
+			} else {
+			}
+		},
+		formatData(data: ITableData[]) {
+			data.forEach((v) => {
+				// @ts-ignore
+				v.from_id = v.from_id[0];
+				// @ts-ignore
+				v.to_id = v.to_id[0];
+				// @ts-ignore
+				v.create_date = this.$dayjs(v.create_date).fromNow();
+				// @ts-ignore
+				v.update_date = this.$dayjs(v.update_date).fromNow();
+				// 当前用户是否为消息的发送方，便于设置不同的样式
+				v.__isCurrentUser__ = this.computedUserId === v.from_id._id;
+			});
+			uni.stopPullDownRefresh();
+		},
 		async handleConfirm() {
 			const res = await uniCloud.callFunction({
 				name: 'post-chat-message',
@@ -98,7 +152,11 @@ export default {
 					session_id: this.sessionId,
 				},
 			});
-			this.sessionId = res.result.data?.session_id ?? this.sessionId;
+			if (res.result.errCode === 0) {
+				// 作为发送方，成功发送消息
+				this.sessionId = res.result.data?.session_id ?? this.sessionId;
+				this.fetchData(true);
+			}
 		},
 		handleInput() {},
 	},

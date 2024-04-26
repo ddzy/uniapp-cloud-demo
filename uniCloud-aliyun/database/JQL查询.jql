@@ -15,3 +15,6 @@
 // }).remove();
 
 // db.collection('comment').where({}).remove();
+
+// db.collection('chat-session').where({}).remove();
+// db.collection('chat-message').where({}).remove();
