@@ -15,12 +15,3 @@
 // }).remove();
 
 // db.collection('comment').where({}).remove();
-
-db
-	.collection('follow')
-	.where({
-		from: "66232518f08210b07d744bb6",
-	})
-	.field('from,to,_id,status,create_date')
-	.orderBy('create_date', 'desc')
-	.get()

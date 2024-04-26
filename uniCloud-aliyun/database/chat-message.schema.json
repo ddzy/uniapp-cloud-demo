@@ -1,0 +1,62 @@
+// 文档教程: https://uniapp.dcloud.net.cn/uniCloud/schema
+{
+	"bsonType": "object",
+	"required": [
+		"from_id",
+		"to_id",
+		"session_id",
+		"content"
+	],
+	"permission": {
+		"read": "auth.uid == doc.from_id || auth.uid == doc.to_id",
+		"create": "'user' in auth.role",
+		"update": "auth.uid == doc.from_id || auth.uid == doc.to_id",
+		"delete": "auth.uid == doc.from_id || auth.uid == doc.to_id"
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"from_id": {
+			"bsonType": "string",
+			"description": "消息发送人ID",
+			"foreignKey": "uni-id-users._id"
+		},
+		"to_id": {
+			"bsonType": "string",
+			"description": "消息接收人ID",
+			"foreignKey": "uni-id-users._id"
+		},
+		"session_id": {
+			"bsonType": "string",
+			"description": "会话ID",
+			"foreignKey": "chat-session._id"
+		},
+		"content": {
+			"bsonType": "string",
+			"description": "聊天内容"
+		},
+		"avatar": {
+			"bsonType": "string",
+			"description": "图片内容"
+		},
+		"avatar_file": {
+			"bsonType": "file",
+			"description": "图片文件"
+		},
+		"create_date": {
+			"bsonType": "timestamp",
+			"description": "消息创建时间",
+			"forceDefaultValue": {
+				"$env": "now"
+			}
+		},
+		"update_date": {
+			"bsonType": "timestamp",
+			"description": "消息更新时间",
+			"forceDefaultValue": {
+				"$env": "now"
+			}
+		}
+	}
+}

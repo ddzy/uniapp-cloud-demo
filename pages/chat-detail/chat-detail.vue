@@ -39,7 +39,9 @@
 export default {
 	data() {
 		return {
-			to: '',
+			pushClientId: '',
+			toId: '',
+			sessionId: '',
 			inputValue: '',
 			messages: [
 				{
@@ -63,27 +65,40 @@ export default {
 			],
 		};
 	},
-	computed: {
-		computedPushClientId() {
-			return this.$store.state.chat.pushClientId;
-		},
-	},
-	onLoad(options: { to: string }) {
-		this.to = options.to || '';
+	computed: {},
+	async onLoad(options: { toId: string; sessionId: string }) {
+		this.toId = options.toId || '';
+		this.sessionId = options?.sessionId ?? '';
+		const { cid } = await uni.getPushClientId({});
+		this.pushClientId = cid || '';
 	},
 	async onReady() {
 		uni.onPushMessage((result) => {
-			console.log('result :>> ', result);
+			switch (result.type) {
+				case 'receive':
+					let payload = result.data.payload as {
+						session_id: string;
+					};
+					// 接收到新消息，获取最新的消息列表
+					this.sessionId = payload.session_id || '';
+					break;
+				default:
+					break;
+			}
 		});
 	},
 	methods: {
 		async handleConfirm() {
-			await uniCloud.callFunction({
-				name: 'chat',
+			const res = await uniCloud.callFunction({
+				name: 'post-chat-message',
 				data: {
-					push_clientid: this.computedPushClientId,
+					push_clientid: this.pushClientId,
+					to_id: this.toId,
+					content: this.inputValue,
+					session_id: this.sessionId,
 				},
 			});
+			this.sessionId = res.result.data?.session_id ?? this.sessionId;
 		},
 		handleInput() {},
 	},
