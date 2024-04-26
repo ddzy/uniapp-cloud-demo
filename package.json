@@ -26,7 +26,11 @@
 	},
 	"config": {
 		"commitizen": {
-			"path": "cz-conventional-changelog"
+			"path": "cz-conventional-changelog",
+			"disableScopeLowerCase": true,
+			"disableSubjectLowerCase": true,
+			"defaultType": "feat",
+			"defaultScope": "*"
 		}
 	},
 	"lint-staged": {
