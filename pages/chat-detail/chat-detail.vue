@@ -4,7 +4,7 @@
 			<scroll-view
 				:scroll-y="true"
 				:scroll-top="scrollTop"
-				scroll-with-animation
+				:scroll-with-animation="false"
 				class="message"
 			>
 				<unicloud-db
@@ -13,6 +13,7 @@
 						loading,
 						error,
 						options,
+						pagination,
 					}: IUniUdb<ITableData[]>"
 					:collection="collection"
 					loadtime="manual"
@@ -79,9 +80,6 @@ export default {
 			inputValue: '',
 			collection: 'chat-message' as any,
 			scrollTop: 0,
-			tempScrollTop: {
-				current: 0,
-			},
 		};
 	},
 	computed: {
@@ -132,8 +130,9 @@ export default {
 			const udb = this.$refs.udbRef as any;
 			if (isFirstlyFetch) {
 				// 获取首屏数据
-				udb.refresh();
+				udb.loadData();
 			} else {
+				udb.loadMore();
 			}
 		},
 		formatData(data: ITableData[]) {
@@ -152,7 +151,8 @@ export default {
 			});
 			uni.stopPullDownRefresh();
 			// 获取到数据后，自动滚动到底部
-			this.scrollTop = 0;
+			// 解决除了首次滚动之外的其他滚动不生效的问题
+			this.scrollTop -= 1;
 			setTimeout(() => {
 				this.scrollToBottom();
 			}, 0);
