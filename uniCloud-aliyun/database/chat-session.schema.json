@@ -5,7 +5,7 @@
 	"permission": {
 		"read": "doc.from_id == auth.uid || doc.to_id == auth.uid",
 		"create": "'user' in auth.role",
-		"update": "doc.from_id == auth.uid || to_id == auth.uid",
+		"update": "doc.from_id == auth.uid || doc.to_id == auth.uid",
 		"delete": false
 	},
 	"properties": {

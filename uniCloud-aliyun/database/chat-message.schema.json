@@ -11,7 +11,8 @@
 		"read": "auth.uid == doc.from_id || auth.uid == doc.to_id",
 		"create": "'user' in auth.role",
 		"update": "auth.uid == doc.from_id || auth.uid == doc.to_id",
-		"delete": "auth.uid == doc.from_id || auth.uid == doc.to_id"
+		"delete": "auth.uid == doc.from_id || auth.uid == doc.to_id",
+		"count": "auth.uid == doc.from_id || auth.uid == doc.to_id"
 	},
 	"properties": {
 		"_id": {

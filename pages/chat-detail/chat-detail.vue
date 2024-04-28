@@ -123,11 +123,12 @@ export default {
 			const udb = this.$refs.udbRef as any;
 			if (isFirstlyFetch) {
 				// 获取首屏数据
-				udb.loadData();
+				udb.refresh();
 			} else {
 			}
 		},
 		formatData(data: ITableData[]) {
+			data.reverse();
 			data.forEach((v) => {
 				// @ts-ignore
 				v.from_id = v.from_id[0];
@@ -153,8 +154,11 @@ export default {
 				},
 			});
 			if (res.result.errCode === 0) {
+				// 清空输入框
+				this.inputValue = '';
 				// 作为发送方，成功发送消息
 				this.sessionId = res.result.data?.session_id ?? this.sessionId;
+				// 发送成功后，重新获取列表
 				this.fetchData(true);
 			}
 		},

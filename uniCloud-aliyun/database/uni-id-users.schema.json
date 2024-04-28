@@ -5,7 +5,7 @@
 		"create": false,
 		"update": "doc._id == auth.uid",
 		"read": true,
-		"count": "doc._id == auth.uid",
+		"count": "'user' in auth.role",
 		"delete": false
 	},
 	"properties": {
