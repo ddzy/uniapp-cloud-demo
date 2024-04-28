@@ -1,7 +1,12 @@
 <template>
 	<view class="container">
 		<view class="message-section">
-			<view class="message">
+			<scroll-view
+				:scroll-y="true"
+				:scroll-top="scrollTop"
+				scroll-with-animation
+				class="message"
+			>
 				<unicloud-db
 					v-slot:default="{
 						data,
@@ -15,7 +20,7 @@
 					@load="formatData"
 				>
 					<view v-if="error">{{ error.message }}</view>
-					<view v-else>
+					<view v-else class="">
 						<uni-list class="message-list">
 							<uni-list-item
 								v-for="v in data"
@@ -33,7 +38,7 @@
 						</uni-list>
 					</view>
 				</unicloud-db>
-			</view>
+			</scroll-view>
 		</view>
 		<view class="inputbox-section">
 			<uni-search-bar
@@ -41,7 +46,6 @@
 				:cancel-button="'none'"
 				placeholder="文明你我他"
 				@confirm="handleConfirm"
-				@input="handleInput"
 			>
 				<template #searchIcon>
 					<uni-icons type="chat"></uni-icons>
@@ -52,7 +56,11 @@
 </template>
 
 <script lang="ts">
-import { IChatMessage, IUniUdb } from '../../typings/index';
+import {
+	IChatMessage,
+	IUniUdb,
+	IUniScrollViewEvent,
+} from '../../typings/index';
 
 interface ITableData extends IChatMessage {
 	__isCurrentUser__: boolean;
@@ -70,6 +78,10 @@ export default {
 			sessionId: '',
 			inputValue: '',
 			collection: 'chat-message' as any,
+			scrollTop: 0,
+			tempScrollTop: {
+				current: 0,
+			},
 		};
 	},
 	computed: {
@@ -115,9 +127,6 @@ export default {
 			}
 		});
 	},
-	onPullDownRefresh() {
-		this.fetchData(true);
-	},
 	methods: {
 		async fetchData(isFirstlyFetch = false) {
 			const udb = this.$refs.udbRef as any;
@@ -142,6 +151,14 @@ export default {
 				v.__isCurrentUser__ = this.computedUserId === v.from_id._id;
 			});
 			uni.stopPullDownRefresh();
+			// 获取到数据后，自动滚动到底部
+			this.scrollTop = 0;
+			setTimeout(() => {
+				this.scrollToBottom();
+			}, 0);
+		},
+		scrollToBottom() {
+			this.scrollTop = Number.MAX_SAFE_INTEGER;
 		},
 		async handleConfirm() {
 			const res = await uniCloud.callFunction({
@@ -162,7 +179,6 @@ export default {
 				this.fetchData(true);
 			}
 		},
-		handleInput() {},
 	},
 };
 </script>
@@ -181,10 +197,9 @@ page {
 	.message-section {
 		box-sizing: border-box;
 		flex: 1;
+		overflow: auto;
 		padding: $uni-spacing-col-base $uni-spacing-row-base 0;
-		.message {
-			overflow-x: hidden;
-			overflow-y: auto;
+		:deep(.message) {
 			height: 100%;
 		}
 		.message-list {
