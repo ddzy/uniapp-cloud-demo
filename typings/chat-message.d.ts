@@ -12,4 +12,5 @@ export interface IChatMessage {
 	avatar_file: IUniCommonFile;
 	create_date: number;
 	update_date: number;
+	read_status: boolean;
 }

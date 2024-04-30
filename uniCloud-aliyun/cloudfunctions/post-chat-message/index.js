@@ -3,7 +3,7 @@
 const cloudUtils = require('common-cloud-utils');
 const uniIdCommon = require('uni-id-common');
 const uniPush = uniCloud.getPushManager({
-	appId: '__UNI__E827569',
+	appId: cloudUtils.appId,
 });
 
 exports.main = async (event, context) => {

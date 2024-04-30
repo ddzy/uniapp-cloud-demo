@@ -9,4 +9,5 @@ module.exports = {
 	jwt,
 	errorCode,
 	query,
+	appId: '__UNI__E827569',
 };

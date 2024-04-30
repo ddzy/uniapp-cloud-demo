@@ -97,7 +97,6 @@ export default {
 		const udb = this.$refs.udbRef as any;
 		udb.refresh();
 	},
-	mounted() {},
 	methods: {
 		formatData(data: IChatSession[]) {
 			data.forEach((v) => {

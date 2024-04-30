@@ -30,10 +30,9 @@
 									'is-current-user': v.__isCurrentUser__,
 								}"
 								:key="v._id"
-								:title="v.content"
-								:thumb="v.from_id.avatar"
-								:right-text="v.create_date"
 								:border="false"
+								:data-_id="v._id"
+								:data-read_status="v.read_status"
 								clickable
 							>
 								<template #header>
@@ -51,7 +50,7 @@
 											<text>{{ v.content }}</text>
 										</view>
 										<view class="message-item__time">
-											<text>{{ v.create_date }}</text>
+											<text>{{ v.__createDate__ }}</text>
 										</view>
 									</view>
 								</template>
@@ -88,6 +87,7 @@ import {
 
 interface ITableData extends IChatMessage {
 	__isCurrentUser__: boolean;
+	__createDate__: string;
 }
 
 const db = uniCloud.databaseForJQL();
@@ -103,6 +103,8 @@ export default {
 			inputValue: '',
 			collection: 'chat-message' as any,
 			scrollTop: 0,
+			observer: undefined as UniApp.IntersectionObserver | undefined,
+			lastReadMessageId: '',
 		};
 	},
 	computed: {
@@ -156,6 +158,23 @@ export default {
 			}
 		});
 	},
+	onUnload() {
+		if (this.observer) {
+			this.observer.disconnect();
+		}
+		// const udb = this.$refs.udbRef as any;
+		// const name = udb.dataList.find(
+		// 	(v: ITableData) => v._id === this.lastReadMessageId,
+		// );
+		// console.log('name :>> ', name);
+		uniCloud.callFunction({
+			name: 'put-chat-message-read-status',
+			data: {
+				_id: this.lastReadMessageId,
+				session_id: this.sessionId,
+			},
+		});
+	},
 	methods: {
 		async fetchData(isFirstlyFetch = false) {
 			const udb = this.$refs.udbRef as any;
@@ -173,8 +192,7 @@ export default {
 				v.from_id = v.from_id[0];
 				// @ts-ignore
 				v.to_id = v.to_id[0];
-				// @ts-ignore
-				v.create_date = this.$dayjs(v.create_date).fromNow();
+				v.__createDate__ = this.$dayjs(v.create_date).fromNow();
 				// @ts-ignore
 				v.update_date = this.$dayjs(v.update_date).fromNow();
 				// 当前用户是否为消息的发送方，便于设置不同的样式
@@ -186,6 +204,38 @@ export default {
 			this.scrollTop -= 1;
 			setTimeout(() => {
 				this.scrollToBottom();
+				if (this.observer) {
+					this.observer.disconnect();
+				}
+				this.observer = uni
+					.createIntersectionObserver(this, {
+						observeAll: true,
+						// initialRatio: 1,
+						thresholds: [0.5],
+						initialRatio: 0,
+					})
+					.relativeTo('.message');
+				this.observer.observe('.message-item', (res) => {
+					if (res.intersectionRatio >= 0.5) {
+						// 如果消息的DOM超过一半可见
+						if ('dataset' in res) {
+							const params = res.dataset as ITableData;
+							// 如果消息可见，并且未读
+							if (!params.read_status) {
+								// 更新最近一次的未读消息ID
+								this.lastReadMessageId = params._id;
+								// 更新当前消息为已读状态（本地）
+								const udb = this.$refs.udbRef as any;
+								udb.dataList = udb.dataList.map((v: ITableData) => {
+									return {
+										...v,
+										read_status: v._id === params._id ? true : v.read_status,
+									};
+								});
+							}
+						}
+					}
+				});
 			}, 0);
 		},
 		scrollToBottom() {
