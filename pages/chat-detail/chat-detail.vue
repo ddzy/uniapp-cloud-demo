@@ -110,11 +110,19 @@ export default {
 			return this.$store.state.user.userInfo._id;
 		},
 	},
-	async onLoad(options: { toId: string; sessionId: string }) {
+	async onLoad(options: {
+		toId: string;
+		toNickname: string;
+		sessionId: string;
+	}) {
 		this.toId = options.toId || '';
 		this.sessionId = options.sessionId ?? '';
 		const { cid } = await uni.getPushClientId({});
 		this.pushClientId = cid || '';
+		// 设置标题
+		uni.setNavigationBarTitle({
+			title: options.toNickname || '会话',
+		});
 	},
 	async onReady() {
 		const foundChatMessagesTemp = await chatMessageCollection

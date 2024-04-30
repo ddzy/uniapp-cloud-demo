@@ -107,13 +107,15 @@ export default {
 		},
 		toChatDetailPage(row: IChatSession) {
 			let toId = row.to_id._id;
+			let toNickname = row.to_id.nickname;
 			// 如果当前用户是会话的被发起方
 			if (this.computedUserId === row.to_id._id) {
 				toId = row.from_id._id;
+				toNickname = row.from_id.nickname;
 			}
 
 			uni.navigateTo({
-				url: `/pages/chat-detail/chat-detail?sessionId=${row._id}&toId=${toId}`,
+				url: `/pages/chat-detail/chat-detail?sessionId=${row._id}&toId=${toId}&toNickname=${toNickname}`,
 			});
 		},
 	},

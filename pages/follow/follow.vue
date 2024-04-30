@@ -93,7 +93,7 @@ export default defineComponent({
 		follow(row: IFollow) {},
 		toChatDetailPage(row: IFollow) {
 			uni.navigateTo({
-				url: `/pages/chat-detail/chat-detail?toId=${row.to._id}`,
+				url: `/pages/chat-detail/chat-detail?toId=${row.to._id}&toNickname=${row.to.nickname}`,
 			});
 		},
 	},
