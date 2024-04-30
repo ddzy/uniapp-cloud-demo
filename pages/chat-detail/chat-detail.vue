@@ -35,7 +35,30 @@
 								:right-text="v.create_date"
 								:border="false"
 								clickable
-							></uni-list-item>
+							>
+								<template #header>
+									<view class="message-item__header">
+										<image
+											:src="v.from_id.avatar"
+											mode="scaleToFill"
+											class="message-item__avatar"
+										></image>
+									</view>
+								</template>
+								<template #body>
+									<view class="message-item__body">
+										<view class="message-item__content">
+											<text>{{ v.content }}</text>
+										</view>
+										<view class="message-item__time">
+											<text>{{ v.create_date }}</text>
+										</view>
+									</view>
+								</template>
+								<template #footer>
+									<view class="message-item__footer"> </view>
+								</template>
+							</uni-list-item>
 						</uni-list>
 					</view>
 				</unicloud-db>
@@ -211,15 +234,20 @@ page {
 			}
 		}
 		.message-item {
-			&:not(:first-child) {
-				margin-top: $uni-spacing-col-lg;
-			}
 			&.is-current-user {
 				:deep(.uni-list-item) {
 					.uni-list-item__container {
 						flex-direction: row-reverse !important;
-						background-color: $uni-bg-color-grey;
-						.uni-list-item__content {
+						.message-item__avatar {
+							margin-left: $uni-spacing-row-base;
+							margin-right: 0;
+						}
+						.message-item__content {
+							background-color: $uni-color-primary;
+							color: $uni-bg-color;
+							border-radius: 10px 0px 10px 10px;
+						}
+						.message-item__time {
 							text-align: right;
 						}
 					}
@@ -228,9 +256,30 @@ page {
 			:deep(.uni-list-item) {
 				.uni-list-item__container {
 					padding: $uni-spacing-col-sm $uni-spacing-row-sm;
-				}
-				.uni-list-item__icon {
-					margin-right: 0px !important;
+					.message-item__header {
+					}
+					.message-item__avatar {
+						width: 36px;
+						height: 36px;
+						border-radius: $uni-border-radius-circle;
+						margin-right: $uni-spacing-row-base;
+					}
+					.message-item__body {
+					}
+					.message-item__content {
+						position: relative;
+						padding: $uni-spacing-col-lg $uni-spacing-row-base;
+						background-color: $uni-bg-color-grey;
+						border-radius: 0px 10px 10px 10px;
+						color: $uni-text-color;
+					}
+					.message-item__time {
+						margin-top: $uni-spacing-col-base;
+						color: $uni-text-color-grey;
+						font-size: $uni-font-size-sm;
+					}
+					.message-item__footer {
+					}
 				}
 			}
 		}
