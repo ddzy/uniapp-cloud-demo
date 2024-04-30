@@ -14,7 +14,7 @@
 		>
 			<view v-if="error">{{ error.message }}</view>
 			<view v-else>
-				<uni-list>
+				<uni-list class="session-list">
 					<uni-list-item
 						v-for="v in data"
 						:key="v._id"
@@ -23,8 +23,22 @@
 						:thumb="v.from_id.avatar"
 						:right-text="v.last_message_id.create_date"
 						:clickable="true"
+						thumb-size="lg"
+						class="session-item"
 						@click="toChatDetailPage(v)"
-					></uni-list-item>
+					>
+						<template #header>
+							<view class="session-item__header">
+								<uni-badge text="999" type="error" absolute="rightTop">
+									<image
+										:src="v.from_id.avatar"
+										class="session-avatar"
+										mode="scaleToFill"
+									></image>
+								</uni-badge>
+							</view>
+						</template>
+					</uni-list-item>
 				</uni-list>
 			</view>
 		</unicloud-db>
@@ -124,5 +138,18 @@ export default {
 
 <style lang="scss" scoped>
 .container {
+	.session-item {
+		:deep(.uni-list-item) {
+			.session-item__header {
+				display: flex;
+				align-items: center;
+				margin-right: $uni-spacing-row-lg;
+				.session-avatar {
+					width: 36px;
+					height: 36px;
+				}
+			}
+		}
+	}
 }
 </style>
