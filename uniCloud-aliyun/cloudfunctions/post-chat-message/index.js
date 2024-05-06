@@ -22,6 +22,9 @@ exports.main = async (event, context) => {
 	});
 	const chatSessionCollection = await db.collection('chat-session');
 	const chatMessageCollection = await db.collection('chat-message');
+	const chatMessageUnreadCollection = await db.collection(
+		'chat-message-unread',
+	);
 	const deviceCollection = await db.collection('uni-id-device');
 	const userCollection = await db.collection('uni-id-users');
 
@@ -73,6 +76,52 @@ exports.main = async (event, context) => {
 		.get({
 			getOne: true,
 		});
+
+	// 更新发送方的未读消息表，用户每次发送新消息，都清除未读消息
+	// 如果发送方或接收方的未读消息表不存在，则创建
+	let { data: foundFromUnreadMessage } = await chatMessageUnreadCollection
+		.where({
+			user_id: uid,
+			session_id: foundChatSessionId,
+		})
+		.get({
+			getOne: true,
+		});
+	if (!foundFromUnreadMessage) {
+		foundFromUnreadMessage = await chatMessageUnreadCollection.add({
+			user_id: uid,
+			session_id: foundChatSessionId,
+			last_read_message_id: foundChatMessage._id,
+			last_read_message_create_date: foundChatMessage.create_date,
+		});
+	} else {
+		foundFromUnreadMessage = await chatMessageUnreadCollection
+			.where({
+				user_id: uid,
+				session_id: foundChatSessionId,
+			})
+			.update({
+				last_read_message_id: foundChatMessage._id,
+				last_read_message_create_date: foundChatMessage.create_date,
+			});
+	}
+
+	let { data: foundToUnreadMessage } = await chatMessageUnreadCollection
+		.where({
+			user_id: event.to_id,
+			session_id: foundChatSessionId,
+		})
+		.get({
+			getOne: true,
+		});
+	if (!foundToUnreadMessage) {
+		foundToUnreadMessage = await chatMessageUnreadCollection.add({
+			user_id: event.to_id,
+			session_id: foundChatSessionId,
+			last_read_message_id: foundChatMessage._id,
+			last_read_message_create_date: foundChatMessage.create_date,
+		});
+	}
 
 	// 查找消息接收方的 push_clientid
 	const { data: foundToUserDevice } = await deviceCollection

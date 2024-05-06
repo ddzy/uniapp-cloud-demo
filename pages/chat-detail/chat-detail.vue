@@ -151,21 +151,11 @@ export default {
 			.getTemp();
 		this.collection = [foundChatMessagesTemp, foundUserTemp];
 		this.$nextTick(() => {
+			// 获取未读消息
+			this.fetchUnreadMessage();
+			// 获取消息列表
 			this.fetchData(true);
 		});
-
-		// 首次进入页面时，查找未读消息的时间点
-		const { data: foundUnreadMessage } = await chatMessageUnreadCollection
-			.where(
-				`session_id == '${this.sessionId}' && user_id == '${this.computedUserId}'`,
-			)
-			.field(`_id,last_read_message_create_date`)
-			.get({
-				getOne: true,
-			});
-		this.lastReadMessageDate =
-			foundUnreadMessage?.last_read_message_create_date ??
-			this.lastReadMessageDate;
 
 		// 监听实时的消息推送
 		uni.onPushMessage((result) => {
@@ -176,6 +166,7 @@ export default {
 						message: ITableData;
 					};
 					this.sessionId = payload.session_id || '';
+					// 将新消息追加到列表
 					this.appendData(payload.message);
 					break;
 				default:
@@ -230,14 +221,18 @@ export default {
 		async appendData(data: ITableData) {
 			const udb = this.$refs.udbRef as any;
 			// @ts-ignore
-			data.from_id = data.from_id[0];
+			data.from_id = data.from_id.length ? data.from_id[0] : data.from_id;
 			// @ts-ignore
-			data.to_id = data.to_id[0];
+			data.to_id = data.to_id.length ? data.to_id[0] : data.to_id;
 			data.__createDate__ = this.$dayjs(data.create_date).fromNow();
 			// 当前用户是否为消息的发送方，便于设置不同的样式
 			data.__isCurrentUser__ = this.computedUserId === data.from_id._id;
 			// 当前消息是否未读
-			data.__isunread__ = data.create_date > this.lastReadMessageDate;
+			// 如果当前用户为发送方，那么表明该消息为已读状态
+			// 如果当前用户为接收方，那么继续判断
+			data.__isunread__ = data.__isCurrentUser__
+				? false
+				: data.create_date > this.lastReadMessageDate;
 
 			if (udb) {
 				udb.dataList = udb.dataList.concat(data);
@@ -252,6 +247,20 @@ export default {
 					this.observeReadStatus();
 				}, 0);
 			}
+		},
+		async fetchUnreadMessage() {
+			// 查找未读消息的时间节点
+			const { data: foundUnreadMessage } = await chatMessageUnreadCollection
+				.where(
+					`session_id == '${this.sessionId}' && user_id == '${this.computedUserId}'`,
+				)
+				.field(`_id,last_read_message_create_date`)
+				.get({
+					getOne: true,
+				});
+			this.lastReadMessageDate =
+				foundUnreadMessage?.last_read_message_create_date ??
+				this.lastReadMessageDate;
 		},
 		scrollToBottom() {
 			// 解决除了首次滚动之外的其他滚动不生效的问题
@@ -288,11 +297,9 @@ export default {
 		},
 		handleScrollToLower() {
 			this.hasScrollToBottom = true;
-			console.log('1 :>> ', 1);
 		},
 		handleScroll() {
 			this.hasScrollToBottom = false;
-			console.log('2 :>> ', 2);
 		},
 		async handleConfirm() {
 			const res = await uniCloud.callFunction({
