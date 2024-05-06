@@ -6,6 +6,8 @@
 				:scroll-top="scrollTop"
 				:scroll-with-animation="false"
 				class="message"
+				@scrolltolower="handleScrollToLower"
+				@scroll="handleScroll"
 			>
 				<unicloud-db
 					v-slot:default="{
@@ -111,8 +113,7 @@ export default {
 			inputValue: '',
 			collection: 'chat-message' as any,
 			scrollTop: 0,
-			// 获取到新的列表后是否应该自动滚动到底部
-			shouldScrollToBottom: false,
+			hasScrollToBottom: false,
 			observer: undefined as UniApp.IntersectionObserver | undefined,
 			lastReadMessageId: '',
 			lastReadMessageDate: Number.MAX_SAFE_INTEGER,
@@ -121,9 +122,6 @@ export default {
 	computed: {
 		computedUserId() {
 			return this.$store.state.user.userInfo._id;
-		},
-		computedHasScrollToBottom() {
-			return this.scrollTop >= Number.MAX_SAFE_INTEGER;
 		},
 	},
 	async onLoad(options: {
@@ -169,17 +167,16 @@ export default {
 			foundUnreadMessage?.last_read_message_create_date ??
 			this.lastReadMessageDate;
 
-		// 作为接收方，监听实时的消息推送
+		// 监听实时的消息推送
 		uni.onPushMessage((result) => {
 			switch (result.type) {
 				case 'receive':
 					let payload = result.data.payload as {
 						session_id: string;
+						message: ITableData;
 					};
-					// 接收到新消息，获取最新的消息列表
 					this.sessionId = payload.session_id || '';
-					this.shouldScrollToBottom = !!this.computedHasScrollToBottom;
-					this.fetchData(true);
+					this.appendData(payload.message);
 					break;
 				default:
 					break;
@@ -225,40 +222,77 @@ export default {
 			});
 			uni.stopPullDownRefresh();
 			// 获取到数据后，自动滚动到底部
+			setTimeout(() => {
+				this.scrollToBottom();
+				this.observeReadStatus();
+			}, 0);
+		},
+		async appendData(data: ITableData) {
+			const udb = this.$refs.udbRef as any;
+			// @ts-ignore
+			data.from_id = data.from_id[0];
+			// @ts-ignore
+			data.to_id = data.to_id[0];
+			data.__createDate__ = this.$dayjs(data.create_date).fromNow();
+			// 当前用户是否为消息的发送方，便于设置不同的样式
+			data.__isCurrentUser__ = this.computedUserId === data.from_id._id;
+			// 当前消息是否未读
+			data.__isunread__ = data.create_date > this.lastReadMessageDate;
+
+			if (udb) {
+				udb.dataList = udb.dataList.concat(data);
+				setTimeout(() => {
+					// 如果新消息是当前用户发送的，那么列表自动滚动到底部
+					if (data.from_id._id === this.computedUserId) {
+						this.scrollToBottom();
+					} else if (this.hasScrollToBottom) {
+						// 如果接收方当前正处于列表底部，那么自动滚动到底部
+						this.scrollToBottom();
+					}
+					this.observeReadStatus();
+				}, 0);
+			}
+		},
+		scrollToBottom() {
 			// 解决除了首次滚动之外的其他滚动不生效的问题
 			this.scrollTop -= 1;
 			setTimeout(() => {
-				if (this.shouldScrollToBottom) {
-					this.scrollToBottom();
-				}
-				if (this.observer) {
-					this.observer.disconnect();
-				}
-				this.observer = uni
-					.createIntersectionObserver(this, {
-						observeAll: true,
-						// initialRatio: 1,
-						thresholds: [0.5],
-						initialRatio: 0,
-					})
-					.relativeTo('.message');
-				this.observer.observe('.message-item', (res) => {
-					if (res.intersectionRatio >= 0.5) {
-						// 如果消息的DOM超过一半可见
-						if ('dataset' in res) {
-							const dataset = res.dataset as ITableData;
-							// 如果消息可见，并且未读
-							if (dataset.__isunread__) {
-								// 更新最近一次的未读消息ID
-								this.lastReadMessageId = dataset._id;
-							}
-						}
-					}
-				});
+				this.scrollTop = Number.MAX_SAFE_INTEGER;
 			}, 0);
 		},
-		scrollToBottom() {
-			this.scrollTop = Number.MAX_SAFE_INTEGER;
+		observeReadStatus() {
+			if (this.observer) {
+				this.observer.disconnect();
+			}
+			this.observer = uni
+				.createIntersectionObserver(this, {
+					observeAll: true,
+					// initialRatio: 1,
+					thresholds: [0.5],
+					initialRatio: 0,
+				})
+				.relativeTo('.message');
+			this.observer.observe('.message-item', (res) => {
+				if (res.intersectionRatio >= 0.5) {
+					// 如果消息的DOM超过一半可见
+					if ('dataset' in res) {
+						const dataset = res.dataset as ITableData;
+						// 如果消息可见，并且未读
+						if (dataset.__isunread__) {
+							// 更新最近一次的未读消息ID
+							this.lastReadMessageId = dataset._id;
+						}
+					}
+				}
+			});
+		},
+		handleScrollToLower() {
+			this.hasScrollToBottom = true;
+			console.log('1 :>> ', 1);
+		},
+		handleScroll() {
+			this.hasScrollToBottom = false;
+			console.log('2 :>> ', 2);
 		},
 		async handleConfirm() {
 			const res = await uniCloud.callFunction({
@@ -275,9 +309,6 @@ export default {
 				this.inputValue = '';
 				// 作为发送方，成功发送消息
 				this.sessionId = res.result.data?.session_id ?? this.sessionId;
-				this.shouldScrollToBottom = true;
-				// 发送成功后，重新获取列表
-				this.fetchData(true);
 			}
 		},
 	},

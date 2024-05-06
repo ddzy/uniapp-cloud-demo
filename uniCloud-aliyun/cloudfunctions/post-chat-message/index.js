@@ -23,6 +23,7 @@ exports.main = async (event, context) => {
 	const chatSessionCollection = await db.collection('chat-session');
 	const chatMessageCollection = await db.collection('chat-message');
 	const deviceCollection = await db.collection('uni-id-device');
+	const userCollection = await db.collection('uni-id-users');
 
 	// 查找聊天会话
 	let { data: foundChatSession } = await chatSessionCollection
@@ -58,22 +59,49 @@ exports.main = async (event, context) => {
 			last_message_id: foundChatMessageId,
 		});
 
+	// 查找刚刚创建的消息
+	const foundChatMessageTemp = await chatMessageCollection
+		.where({
+			_id: foundChatMessageId,
+		})
+		.getTemp();
+	const foundUserTemp = await userCollection
+		.field('_id,avatar,nickname')
+		.getTemp();
+	const { data: foundChatMessage } = await db
+		.collection(foundChatMessageTemp, foundUserTemp)
+		.get({
+			getOne: true,
+		});
+
 	// 查找消息接收方的 push_clientid
-	const { data: foundToUser } = await deviceCollection
+	const { data: foundToUserDevice } = await deviceCollection
 		.where({
 			user_id: event.to_id,
 		})
 		.get({
 			getOne: true,
 		});
+	// 查找消息发送方的 push_clientid
+	const { data: foundFromUserDevice } = await deviceCollection
+		.where({
+			user_id: uid,
+		})
+		.get({
+			getOne: true,
+		});
 
-	if (foundToUser) {
+	if (foundToUserDevice && foundFromUserDevice) {
 		await uniPush.sendMessage({
 			title: '你收到一条消息',
 			content: event.content,
-			push_clientid: foundToUser.push_clientid,
+			push_clientid: [
+				foundToUserDevice.push_clientid,
+				foundFromUserDevice.push_clientid,
+			],
 			payload: {
 				session_id: foundChatSessionId,
+				message: foundChatMessage,
 			},
 		});
 		return {
