@@ -24,15 +24,16 @@
 					<view v-else class="">
 						<uni-list class="message-list">
 							<uni-list-item
-								v-for="v in data"
+								v-for="(v, i) in data"
 								:class="{
 									'message-item': true,
 									'is-current-user': v.__isCurrentUser__,
 								}"
-								:key="v._id"
+								:key="`${v._id}-${i}`"
 								:border="false"
 								:data-_id="v._id"
-								:data-read_status="v.read_status"
+								:data-__isunread__="v.__isunread__"
+								:data-create_date="v.create_date"
 								clickable
 							>
 								<template #header>
@@ -55,7 +56,12 @@
 									</view>
 								</template>
 								<template #footer>
-									<view class="message-item__footer"> </view>
+									<view class="message-item__footer">
+										<uni-badge
+											:text="v.__isunread__ ? '未读' : '已读'"
+											:type="v.__isunread__ ? 'error' : 'success'"
+										></uni-badge>
+									</view>
 								</template>
 							</uni-list-item>
 						</uni-list>
@@ -88,11 +94,13 @@ import {
 interface ITableData extends IChatMessage {
 	__isCurrentUser__: boolean;
 	__createDate__: string;
+	__isunread__: boolean;
 }
 
 const db = uniCloud.databaseForJQL();
 const chatMessageCollection = db.collection('chat-message');
 const userCollection = db.collection('uni-id-users');
+const chatMessageUnreadCollection = db.collection('chat-message-unread');
 
 export default {
 	data() {
@@ -103,13 +111,19 @@ export default {
 			inputValue: '',
 			collection: 'chat-message' as any,
 			scrollTop: 0,
+			// 获取到新的列表后是否应该自动滚动到底部
+			shouldScrollToBottom: false,
 			observer: undefined as UniApp.IntersectionObserver | undefined,
 			lastReadMessageId: '',
+			lastReadMessageDate: Number.MAX_SAFE_INTEGER,
 		};
 	},
 	computed: {
 		computedUserId() {
 			return this.$store.state.user.userInfo._id;
+		},
+		computedHasScrollToBottom() {
+			return this.scrollTop >= Number.MAX_SAFE_INTEGER;
 		},
 	},
 	async onLoad(options: {
@@ -142,6 +156,19 @@ export default {
 			this.fetchData(true);
 		});
 
+		// 首次进入页面时，查找未读消息的时间点
+		const { data: foundUnreadMessage } = await chatMessageUnreadCollection
+			.where(
+				`session_id == '${this.sessionId}' && user_id == '${this.computedUserId}'`,
+			)
+			.field(`_id,last_read_message_create_date`)
+			.get({
+				getOne: true,
+			});
+		this.lastReadMessageDate =
+			foundUnreadMessage?.last_read_message_create_date ??
+			this.lastReadMessageDate;
+
 		// 作为接收方，监听实时的消息推送
 		uni.onPushMessage((result) => {
 			switch (result.type) {
@@ -151,6 +178,7 @@ export default {
 					};
 					// 接收到新消息，获取最新的消息列表
 					this.sessionId = payload.session_id || '';
+					this.shouldScrollToBottom = !!this.computedHasScrollToBottom;
 					this.fetchData(true);
 					break;
 				default:
@@ -162,11 +190,6 @@ export default {
 		if (this.observer) {
 			this.observer.disconnect();
 		}
-		// const udb = this.$refs.udbRef as any;
-		// const name = udb.dataList.find(
-		// 	(v: ITableData) => v._id === this.lastReadMessageId,
-		// );
-		// console.log('name :>> ', name);
 		uniCloud.callFunction({
 			name: 'put-chat-message-read-status',
 			data: {
@@ -176,16 +199,18 @@ export default {
 		});
 	},
 	methods: {
-		async fetchData(isFirstlyFetch = false) {
+		async fetchData(fetchNewest = false) {
 			const udb = this.$refs.udbRef as any;
-			if (isFirstlyFetch) {
-				// 获取首屏数据
-				udb.loadData();
+			if (fetchNewest) {
+				// 获取最新的聊天记录
+				udb.loadData({
+					clear: true,
+				});
 			} else {
 				udb.loadMore();
 			}
 		},
-		formatData(data: ITableData[]) {
+		async formatData(data: ITableData[]) {
 			data.reverse();
 			data.forEach((v) => {
 				// @ts-ignore
@@ -193,17 +218,19 @@ export default {
 				// @ts-ignore
 				v.to_id = v.to_id[0];
 				v.__createDate__ = this.$dayjs(v.create_date).fromNow();
-				// @ts-ignore
-				v.update_date = this.$dayjs(v.update_date).fromNow();
 				// 当前用户是否为消息的发送方，便于设置不同的样式
 				v.__isCurrentUser__ = this.computedUserId === v.from_id._id;
+				// 当前消息是否未读
+				v.__isunread__ = v.create_date > this.lastReadMessageDate;
 			});
 			uni.stopPullDownRefresh();
 			// 获取到数据后，自动滚动到底部
 			// 解决除了首次滚动之外的其他滚动不生效的问题
 			this.scrollTop -= 1;
 			setTimeout(() => {
-				this.scrollToBottom();
+				if (this.shouldScrollToBottom) {
+					this.scrollToBottom();
+				}
 				if (this.observer) {
 					this.observer.disconnect();
 				}
@@ -219,19 +246,11 @@ export default {
 					if (res.intersectionRatio >= 0.5) {
 						// 如果消息的DOM超过一半可见
 						if ('dataset' in res) {
-							const params = res.dataset as ITableData;
+							const dataset = res.dataset as ITableData;
 							// 如果消息可见，并且未读
-							if (!params.read_status) {
+							if (dataset.__isunread__) {
 								// 更新最近一次的未读消息ID
-								this.lastReadMessageId = params._id;
-								// 更新当前消息为已读状态（本地）
-								const udb = this.$refs.udbRef as any;
-								udb.dataList = udb.dataList.map((v: ITableData) => {
-									return {
-										...v,
-										read_status: v._id === params._id ? true : v.read_status,
-									};
-								});
+								this.lastReadMessageId = dataset._id;
 							}
 						}
 					}
@@ -256,6 +275,7 @@ export default {
 				this.inputValue = '';
 				// 作为发送方，成功发送消息
 				this.sessionId = res.result.data?.session_id ?? this.sessionId;
+				this.shouldScrollToBottom = true;
 				// 发送成功后，重新获取列表
 				this.fetchData(true);
 			}
