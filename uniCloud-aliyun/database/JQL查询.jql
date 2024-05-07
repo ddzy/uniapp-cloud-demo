@@ -18,3 +18,7 @@
 
 // db.collection('chat-session').where({}).remove();
 // db.collection('chat-message').where({}).remove();
+
+db.collection('chat-message').where(
+	`(from_id == '66232518f08210b07d744bb6' || to_id == '66232518f08210b07d744bb6') && create_date > 1714986150992`
+).count();

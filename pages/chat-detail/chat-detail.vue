@@ -229,7 +229,7 @@ export default {
 			data.__isCurrentUser__ = this.computedUserId === data.from_id._id;
 			// 当前消息是否未读
 			// 如果当前用户为发送方，那么表明该消息为已读状态
-			// 如果当前用户为接收方，那么继续判断
+			// 如果当前用户为接收方，
 			data.__isunread__ = data.__isCurrentUser__
 				? false
 				: data.create_date > this.lastReadMessageDate;
