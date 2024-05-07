@@ -48,12 +48,6 @@ uniCloud.addInterceptor('callFunction', {
 		if (ERROR_CODE_SHOULD_SET_LOGOUT_GLOBALLY.includes(res.result.errCode)) {
 			await store.commit('user/UPDATE_IS_LOGINED', false);
 		}
-		if (ERROR_CODE_SHOULD_GO_LOGIN.includes(res.result.errCode)) {
-			// 自动跳转到登录页
-			await uni.switchTab({
-				url: '/pages/user/user',
-			});
-		}
 	},
 	fail(res) {
 		// 云函数 throw 抛出的错误

@@ -1,13 +1,6 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-			"path": "pages/chat/chat",
-			"style": {
-				"navigationBarTitleText": "会话列表",
-				"enablePullDownRefresh": true
-			}
-		},
-		{
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "uni-cloud-demo"
@@ -25,14 +18,16 @@
 			"style": {
 				"navigationBarTitleText": "我关注的",
 				"enablePullDownRefresh": false
-			}
+			},
+			"needLogin": true
 		},
 		{
 			"path": "pages/operate-user/operate-user",
 			"style": {
 				"navigationBarTitleText": "编辑个人资料",
 				"enablePullDownRefresh": false
-			}
+			},
+			"needLogin": true
 		},
 		{
 			"path": "pages/operate-article/operate-article",
@@ -47,7 +42,8 @@
 						}]
 					}
 				}
-			}
+			},
+			"needLogin": true
 		},
 		{
 			"path": "pages/article-detail/article-detail",
@@ -57,11 +53,20 @@
 			}
 		},
 		{
+			"path": "pages/chat/chat",
+			"style": {
+				"navigationBarTitleText": "会话列表",
+				"enablePullDownRefresh": true
+			},
+			"needLogin": true
+		},
+		{
 			"path": "pages/chat-detail/chat-detail",
 			"style": {
 				"navigationBarTitleText": "会话",
 				"enablePullDownRefresh": false
-			}
+			},
+			"needLogin": true
 		}
 	],
 	"globalStyle": {
@@ -70,7 +75,10 @@
 		"navigationBarBackgroundColor": "#F8F8F8",
 		"backgroundColor": "#F8F8F8"
 	},
-	"uniIdRouter": {},
+	"uniIdRouter": {
+		"loginPage": "pages/user/user",
+		"resToLogin": true
+	},
 	"tabBar": {
 		"fontSize": "20px",
 		"selectedColor": "#007aff",
